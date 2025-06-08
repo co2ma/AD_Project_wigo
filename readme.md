@@ -4,7 +4,7 @@
 
 | ![이강욱](https://github.com/user-attachments/assets/25744c27-d8d8-4d43-b308-180abcbfbc16)  | ![박재영](https://github.com/user-attachments/assets/592477d7-cd17-4a96-af90-5a69db3f3b4c) |
 |:--:|:--:|
-| **이강욱**<br>**Project Leader**<br>Mapping<br>Optimization| **박재영**<br>UI/UX Design<br>STT<br>Media Server Setup |
+| **이강욱**| **박재영** |
 
 ## 2. 프로젝트 소개
 
