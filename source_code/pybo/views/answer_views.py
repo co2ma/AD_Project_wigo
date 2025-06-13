@@ -1,65 +1,54 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404, redirect, resolve_url
 from django.utils import timezone
-
-from ..forms import AnswerForm
+from django.views.generic import CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.urls import reverse_lazy
 from ..models import Question, Answer
+from ..forms import AnswerForm
 
+class AnswerCreateView(LoginRequiredMixin, CreateView):
+    model = Answer
+    form_class = AnswerForm
+    template_name = 'pybo/answer_form.html'
 
-@login_required(login_url='common:login')
-def answer_create(request, question_id):
-    """
-    pybo 답변등록
-    """
-    question = get_object_or_404(Question, pk=question_id)
-    if request.method == "POST":
-        form = AnswerForm(request.POST)
-        if form.is_valid():
-            answer = form.save(commit=False)
-            answer.author = request.user  # 추가한 속성 author 적용
-            answer.create_date = timezone.now()
-            answer.question = question
-            answer.save()
-            return redirect('pybo:detail', question_id=question.id)
-    else:
-        form = AnswerForm()
-    context = {'question': question, 'form': form}
-    return render(request, 'pybo/question_detail.html', context)
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        form.instance.create_date = timezone.now()
+        form.instance.question = get_object_or_404(Question, pk=self.kwargs['question_id'])
+        messages.success(self.request, '답변이 등록되었습니다.')
+        return super().form_valid(form)
 
+    def get_success_url(self):
+        return resolve_url('pybo:detail', question_id=self.kwargs['question_id'])
 
-@login_required(login_url='common:login')
-def answer_modify(request, answer_id):
-    """
-    pybo 답변수정
-    """
-    answer = get_object_or_404(Answer, pk=answer_id)
-    if request.user != answer.author:
-        messages.error(request, '수정권한이 없습니다')
-        return redirect('pybo:detail', question_id=answer.question.id)
+class AnswerUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Answer
+    form_class = AnswerForm
+    template_name = 'pybo/answer_form.html'
 
-    if request.method == "POST":
-        form = AnswerForm(request.POST, instance=answer)
-        if form.is_valid():
-            answer = form.save(commit=False)
-            answer.author = request.user
-            answer.modify_date = timezone.now()
-            answer.save()
-            return redirect('pybo:detail', question_id=answer.question.id)
-    else:
-        form = AnswerForm(instance=answer)
-    context = {'answer': answer, 'form': form}
-    return render(request, 'pybo/answer_form.html', context)
+    def test_func(self):
+        return self.get_object().author == self.request.user
 
+    def form_valid(self, form):
+        form.instance.modify_date = timezone.now()
+        messages.success(self.request, '답변이 수정되었습니다.')
+        return super().form_valid(form)
 
-@login_required(login_url='common:login')
-def answer_delete(request, answer_id):
-    """
-    pybo 답변삭제
-    """
-    answer = get_object_or_404(Answer, pk=answer_id)
-    if request.user != answer.author:
-        messages.error(request, '삭제권한이 없습니다')
-    else:
-        answer.delete()
-    return redirect('pybo:detail', question_id=answer.question.id)
+    def get_success_url(self):
+        return resolve_url('pybo:detail', question_id=self.object.question.id)
+
+class AnswerDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Answer
+    template_name = 'pybo/answer_confirm_delete.html'
+
+    def test_func(self):
+        return self.get_object().author == self.request.user
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, '답변이 삭제되었습니다.')
+        return super().delete(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return resolve_url('pybo:detail', question_id=self.object.question.id)

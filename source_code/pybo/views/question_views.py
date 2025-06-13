@@ -1,63 +1,47 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, get_object_or_404, redirect
+from django.shortcuts import render, get_object_or_404, redirect, resolve_url
 from django.utils import timezone
-
-from ..forms import QuestionForm
+from django.views.generic import CreateView, UpdateView, DeleteView
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.urls import reverse_lazy
 from ..models import Question
+from ..forms import QuestionForm
 
+class QuestionCreateView(LoginRequiredMixin, CreateView):
+    model = Question
+    form_class = QuestionForm
+    template_name = 'pybo/question_form.html'
+    success_url = reverse_lazy('pybo:index')
 
-@login_required(login_url='common:login')
-def question_create(request):
-    """
-    pybo 질문등록
-    """
-    if request.method == 'POST':
-        form = QuestionForm(request.POST)
-        if form.is_valid():
-            question = form.save(commit=False)
-            question.author = request.user  # 추가한 속성 author 적용
-            question.create_date = timezone.now()
-            question.save()
-            return redirect('pybo:index')
-    else:
-        form = QuestionForm()
-    context = {'form': form}
-    return render(request, 'pybo/question_form.html', context)
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+        form.instance.create_date = timezone.now()
+        messages.success(self.request, '질문이 등록되었습니다.')
+        return super().form_valid(form)
 
+class QuestionUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Question
+    form_class = QuestionForm
+    template_name = 'pybo/question_form.html'
+    success_url = reverse_lazy('pybo:index')
 
-@login_required(login_url='common:login')
-def question_modify(request, question_id):
-    """
-    pybo 질문수정
-    """
-    question = get_object_or_404(Question, pk=question_id)
-    if request.user != question.author:
-        messages.error(request, '수정권한이 없습니다')
-        return redirect('pybo:detail', question_id=question.id)
+    def test_func(self):
+        return self.get_object().author == self.request.user
 
-    if request.method == "POST":
-        form = QuestionForm(request.POST, instance=question)
-        if form.is_valid():
-            question = form.save(commit=False)
-            question.author = request.user
-            question.modify_date = timezone.now()  # 수정일시 저장
-            question.save()
-            return redirect('pybo:detail', question_id=question.id)
-    else:
-        form = QuestionForm(instance=question)
-    context = {'form': form}
-    return render(request, 'pybo/question_form.html', context)
+    def form_valid(self, form):
+        form.instance.modify_date = timezone.now()
+        messages.success(self.request, '질문이 수정되었습니다.')
+        return super().form_valid(form)
 
+class QuestionDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
+    model = Question
+    success_url = reverse_lazy('pybo:index')
+    template_name = 'pybo/question_confirm_delete.html'
 
-@login_required(login_url='common:login')
-def question_delete(request, question_id):
-    """
-    pybo 질문삭제
-    """
-    question = get_object_or_404(Question, pk=question_id)
-    if request.user != question.author:
-        messages.error(request, '삭제권한이 없습니다')
-        return redirect('pybo:detail', question_id=question.id)
-    question.delete()
-    return redirect('pybo:index')
+    def test_func(self):
+        return self.get_object().author == self.request.user
+
+    def delete(self, request, *args, **kwargs):
+        messages.success(request, '질문이 삭제되었습니다.')
+        return super().delete(request, *args, **kwargs)
