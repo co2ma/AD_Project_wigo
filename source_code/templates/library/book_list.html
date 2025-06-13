@@ -45,32 +45,5 @@
             {% endif %}
         </div>
     </div>
-
-    <!-- API 테스트 섹션 -->
-    <div class="card mt-4">
-        <div class="card-header">
-            <h5 class="mb-0">🔧 API 테스트</h5>
-        </div>
-        <div class="card-body">
-            <p>도서 관리 API를 테스트할 수 있습니다:</p>
-            <div class="row">
-                <div class="col-md-4">
-                    <a href="{% url 'library:api_book_list' %}" class="btn btn-outline-primary">
-                        도서 목록 API
-                    </a>
-                </div>
-                <div class="col-md-4">
-                    <a href="{% url 'library:api_book_detail' 1 %}" class="btn btn-outline-success">
-                        도서 상세 API (ID: 1)
-                    </a>
-                </div>
-                <div class="col-md-4">
-                    <a href="{% url 'library:api_book_history' 1 %}" class="btn btn-outline-info">
-                        대여 기록 API (ID: 1)
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 {% endblock %} 

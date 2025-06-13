@@ -16,7 +16,9 @@
         <div class="col-1"> <!-- 추천영역 -->
             <div class="bg-light text-center p-3 border font-weight-bolder mb-1">{{question.voter.count}}</div>
             <a href="#" data-uri="{% url 'pybo:vote_question' question.id  %}"
-               class="recommend btn btn-sm btn-secondary btn-block my-1">추천</a>
+               class="recommend btn btn-sm btn-{% if user in question.voter.all %}danger{% else %}secondary{% endif %} btn-block my-1" data-voted="{% if user in question.voter.all %}true{% else %}false{% endif %}">
+                {% if user in question.voter.all %}추천취소{% else %}추천{% endif %}
+            </a>
         </div>
         <div class="col-11"> <!-- 질문영역 -->
             <div class="card">
@@ -78,7 +80,9 @@
         <div class="col-1">  <!-- 추천영역 -->
             <div class="bg-light text-center p-3 border font-weight-bolder mb-1">{{answer.voter.count}}</div>
             <a href="#" data-uri="{% url 'pybo:vote_answer' answer.id  %}"
-                class="recommend btn btn-sm btn-secondary btn-block my-1">추천</a>
+                class="recommend btn btn-sm btn-{% if user in answer.voter.all %}danger{% else %}secondary{% endif %} btn-block my-1" data-voted="{% if user in answer.voter.all %}true{% else %}false{% endif %}">
+                {% if user in answer.voter.all %}추천취소{% else %}추천{% endif %}
+            </a>
         </div>
         <div class="col-11">  <!-- 답변영역 -->
             <div class="card">
@@ -162,7 +166,10 @@ $(document).ready(function(){
         }
     });
     $(".recommend").on('click', function() {
-        if(confirm("정말로 추천하시겠습니까?")) {
+        var isVoted = $(this).data('voted') === 'true';
+        var message = isVoted ? "추천을 취소하시겠습니까?" : "추천하시겠습니까?";
+        
+        if(confirm(message)) {
             location.href = $(this).data('uri');
         }
     });

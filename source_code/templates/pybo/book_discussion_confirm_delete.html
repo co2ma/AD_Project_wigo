@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-3">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">🗑️ 토론 삭제</h4>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">정말로 "{{ object.subject }}" 토론을 삭제하시겠습니까?</p>
+                    <p class="text-muted">이 작업은 되돌릴 수 없습니다.</p>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-danger">삭제</button>
+                            <a href="{% url 'pybo:book_qa_detail' pk=object.id %}" class="btn btn-secondary">취소</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

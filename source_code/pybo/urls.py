@@ -21,6 +21,16 @@ urlpatterns = [
     path('book-qa/answer/modify/<int:pk>/', answer_views.BookAnswerUpdateView.as_view(), name='book_answer_modify'),
     path('book-qa/answer/delete/<int:pk>/', answer_views.BookAnswerDeleteView.as_view(), name='book_answer_delete'),
 
+    # book_discussion_views.py (새로운 책 토론 기능)
+    path('book-discussion/create/', question_views.BookDiscussionCreateView.as_view(), name='book_discussion_create'),
+    path('book-discussion/modify/<int:pk>/', question_views.BookDiscussionUpdateView.as_view(), name='book_discussion_modify'),
+    path('book-discussion/delete/<int:pk>/', question_views.BookDiscussionDeleteView.as_view(), name='book_discussion_delete'),
+    path('reply/create/<int:pk>/', answer_views.ReplyCreateView.as_view(), name='reply_create'),
+    path('reply/modify/<int:pk>/', answer_views.ReplyUpdateView.as_view(), name='reply_modify'),
+    path('reply/delete/<int:pk>/', answer_views.ReplyDeleteView.as_view(), name='reply_delete'),
+    path('vote/discussion/<int:pk>/', vote_views.vote_discussion, name='book_discussion_vote'),
+    path('vote/reply/<int:pk>/', vote_views.vote_reply, name='reply_vote'),
+
     # question_views.py
     path('question/create/', question_views.QuestionCreateView.as_view(), name='question_create'),
     path('question/modify/<int:pk>/', question_views.QuestionUpdateView.as_view(), name='question_modify'),

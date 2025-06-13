@@ -72,6 +72,33 @@ class Book(models.Model):
         return cls.objects.all().order_by('title')
 
 
+class BookDiscussion(models.Model):
+    """책에 대하여 게시판을 위한 독립적인 모델"""
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='author_discussion')
+    book = models.ForeignKey('library.Book', on_delete=models.CASCADE, related_name='discussions')
+    subject = models.CharField(max_length=200)
+    content = models.TextField()
+    create_date = models.DateTimeField(auto_now_add=True)
+    modify_date = models.DateTimeField(null=True, blank=True)
+    voter = models.ManyToManyField(User, related_name='voter_discussion')
+
+    def __str__(self):
+        return f"{self.book.title} - {self.subject}"
+
+
+class DiscussionReply(models.Model):
+    """책 토론에 대한 답글"""
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='author_reply')
+    discussion = models.ForeignKey(BookDiscussion, on_delete=models.CASCADE, related_name='replies')
+    content = models.TextField()
+    create_date = models.DateTimeField(auto_now_add=True)
+    modify_date = models.DateTimeField(null=True, blank=True)
+    voter = models.ManyToManyField(User, related_name='voter_reply')
+
+    def __str__(self):
+        return f"Reply to {self.discussion.subject}"
+
+
 class UploadedFile(models.Model):
     title = models.CharField(max_length=100)
     file = models.FileField(upload_to='uploads/')

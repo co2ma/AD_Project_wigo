@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{% if form.instance.pk %}
+토론 수정
+{% else %}
+새 토론 작성
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container my-3">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">
+                        {% if form.instance.pk %}
+                        📝 토론 수정
+                        {% else %}
+                        ✍️ 새 토론 작성
+                        {% endif %}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" class="post-form">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="{{ form.book.id_for_label }}">{{ form.book.label }}</label>
+                            {{ form.book }}
+                            {% if form.book.errors %}
+                            <div class="alert alert-danger">
+                                {{ form.book.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.subject.id_for_label }}">{{ form.subject.label }}</label>
+                            {{ form.subject }}
+                            {% if form.subject.errors %}
+                            <div class="alert alert-danger">
+                                {{ form.subject.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="form-group">
+                            <label for="{{ form.content.id_for_label }}">{{ form.content.label }}</label>
+                            {{ form.content }}
+                            {% if form.content.errors %}
+                            <div class="alert alert-danger">
+                                {{ form.content.errors }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary">
+                                {% if form.instance.pk %}
+                                수정하기
+                                {% else %}
+                                등록하기
+                                {% endif %}
+                            </button>
+                            <a href="{% url 'pybo:book_qa_index' %}" class="btn btn-secondary">취소</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

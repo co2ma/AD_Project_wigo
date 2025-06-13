@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% load pybo_filter %}
+
+{% block content %}
+<div class="container my-3">
+    <!-- 페이지 헤더 -->
+    <div class="jumbotron">
+        <h1 class="display-4">📚 책에 대하여</h1>
+        <p class="lead">도서에 대한 토론과 의견을 나누는 공간입니다.</p>
+        <hr class="my-4">
+        <a href="{% url 'pybo:book_qa_index' %}" class="btn btn-secondary">← 목록으로 돌아가기</a>
+    </div>
+
+    <!-- 도서 정보 -->
+    <div class="card mb-3">
+        <div class="card-header">
+            <h5 class="mb-0">📖 토론 대상 도서</h5>
+        </div>
+        <div class="card-body">
+            <h6 class="card-title">{{ discussion.book.title }}</h6>
+            <p class="card-text">
+                <strong>저자:</strong> {{ discussion.book.author }}<br>
+                {% if discussion.book.publisher %}
+                <strong>출판사:</strong> {{ discussion.book.publisher }}<br>
+                {% endif %}
+                {% if discussion.book.publication_year %}
+                <strong>출판년도:</strong> {{ discussion.book.publication_year }}
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <!-- 토론 내용 -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">💬 토론 내용</h5>
+        </div>
+        <div class="card-body">
+            <h4 class="card-title">{{ discussion.subject }}</h4>
+            <p class="card-text">{{ discussion.content|mark }}</p>
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="text-muted">
+                    <small>
+                        작성자: {{ discussion.author.username }} | 
+                        작성일시: {{ discussion.create_date|date:"Y-m-d H:i" }}
+                        {% if discussion.modify_date %}
+                        | 수정일시: {{ discussion.modify_date|date:"Y-m-d H:i" }}
+                        {% endif %}
+                    </small>
+                </div>
+                <div>
+                    {% if user == discussion.author %}
+                    <a href="{% url 'pybo:book_discussion_modify' discussion.id %}" class="btn btn-sm btn-outline-secondary">수정</a>
+                    {% endif %}
+                    {% if user.is_authenticated %}
+                    <a href="#" class="recommend btn btn-sm btn-outline-{% if user in discussion.voter.all %}danger{% else %}secondary{% endif %}" data-uri="{% url 'pybo:book_discussion_vote' discussion.id %}" data-voted="{% if user in discussion.voter.all %}true{% else %}false{% endif %}">
+                        {% if user in discussion.voter.all %}추천취소{% else %}추천{% endif %}
+                        <span class="badge badge-secondary">{{ discussion.voter.count }}</span>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 답글 목록 -->
+    <div class="card mt-3">
+        <div class="card-header">
+            <h5 class="mb-0">💭 답글 목록</h5>
+        </div>
+        <div class="card-body">
+            {% if reply_list %}
+            {% for reply in reply_list %}
+            <div class="card mb-2">
+                <div class="card-body">
+                    <p class="card-text">{{ reply.content|mark }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="text-muted">
+                            <small>
+                                작성자: {{ reply.author.username }} | 
+                                작성일시: {{ reply.create_date|date:"Y-m-d H:i" }}
+                                {% if reply.modify_date %}
+                                | 수정일시: {{ reply.modify_date|date:"Y-m-d H:i" }}
+                                {% endif %}
+                            </small>
+                        </div>
+                        <div>
+                            {% if user == reply.author %}
+                            <a href="{% url 'pybo:reply_modify' reply.id %}" class="btn btn-sm btn-outline-secondary">수정</a>
+                            {% endif %}
+                            {% if user.is_authenticated %}
+                            <a href="#" class="recommend btn btn-sm btn-outline-{% if user in reply.voter.all %}danger{% else %}secondary{% endif %}" data-uri="{% url 'pybo:reply_vote' reply.id %}" data-voted="{% if user in reply.voter.all %}true{% else %}false{% endif %}">
+                                {% if user in reply.voter.all %}추천취소{% else %}추천{% endif %}
+                                <span class="badge badge-secondary">{{ reply.voter.count }}</span>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <p class="text-muted">아직 답글이 없습니다.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- 답글 작성 폼 -->
+    {% if user.is_authenticated %}
+    <div class="card mt-3">
+        <div class="card-header">
+            <h5 class="mb-0">✍️ 답글 작성</h5>
+        </div>
+        <div class="card-body">
+            <form method="post" class="my-3" action="{% url 'pybo:reply_create' discussion.id %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <textarea name="content" id="content" class="form-control" rows="10" placeholder="답글을 입력하세요"></textarea>
+                </div>
+                <input type="submit" value="답글등록" class="btn btn-primary">
+            </form>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block script %}
+<script type='text/javascript'>
+$(document).ready(function(){
+    $(".recommend").on('click', function() {
+        var isVoted = $(this).data('voted') === 'true';
+        var message = isVoted ? "추천을 취소하시겠습니까?" : "추천하시겠습니까?";
+        
+        if(confirm(message)) {
+            location.href = $(this).data('uri');
+        }
+    });
+});
+</script>
+{% endblock %} 

@@ -1,63 +1,21 @@
 {% extends 'base.html' %}
 {% load pybo_filter %}
+
 {% block content %}
 <div class="container my-3">
-    <!-- 대시보드 헤더 -->
+    <!-- 페이지 헤더 -->
     <div class="jumbotron">
-        <h1 class="display-4">AD Project 대시보드</h1>
-        <p class="lead">도서 관리 시스템과 Q&A 게시판을 한 곳에서 관리하세요.</p>
+        <h1 class="display-4">📚 책에 대하여</h1>
+        <p class="lead">도서에 대한 토론과 의견을 나누는 공간입니다.</p>
         <hr class="my-4">
-        <p>아래 카드를 통해 각 시스템에 빠르게 접근할 수 있습니다.</p>
+        <a href="{% url 'pybo:index' %}" class="btn btn-secondary">← 메인 페이지로 돌아가기</a>
+        <a href="{% url 'pybo:book_discussion_create' %}" class="btn btn-primary">새 토론 작성</a>
     </div>
 
-    <!-- 시스템 카드 -->
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">📚 도서 관리 시스템</h5>
-                    <p class="card-text">도서 정보를 관리하고 대여 기록을 확인할 수 있습니다.</p>
-                    <a href="{% url 'library:book_list' %}" class="btn btn-primary">도서 관리로 이동</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">💬 Q&A 게시판</h5>
-                    <p class="card-text">질문과 답변을 통해 지식을 공유할 수 있습니다.</p>
-                    <a href="{% url 'pybo:question_create' %}" class="btn btn-success">질문 등록하기</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 유틸리티 카드 -->
-    <div class="row mb-4">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">📚 책 정보 업로드</h5>
-                    <p class="card-text">CSV 또는 JSON 파일로 도서 정보를 일괄 등록할 수 있습니다.</p>
-                    <a href="{% url 'pybo:book_upload' %}" class="btn btn-warning">책 정보 업로드</a>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">🔧 관리자</h5>
-                    <p class="card-text">Django 관리자 페이지에 접근합니다.</p>
-                    <a href="/admin/" class="btn btn-secondary">관리자 페이지</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 질문 목록 -->
+    <!-- 토론 목록 -->
     <div class="card">
         <div class="card-header">
-            <h5 class="mb-0">📝 질문 목록</h5>
+            <h5 class="mb-0">💬 도서 토론 목록</h5>
         </div>
         <div class="card-body">
             <table class="table">
@@ -65,37 +23,43 @@
                 <tr class="text-center thead-dark">
                     <th>번호</th>
                     <th>추천</th>
-                    <th style="width:50%">제목</th>
+                    <th style="width:30%">제목</th>
+                    <th style="width:20%">도서</th>
                     <th>글쓴이</th>
                     <th>작성일시</th>
                 </tr>
                 </thead>
                 <tbody>
-                {% if question_list %}
-                {% for question in question_list %}
+                {% if discussion_list %}
+                {% for discussion in discussion_list %}
                 <tr class="text-center">
                     <td>
-                        <!-- 번호 = 전체건수 - 시작인덱스 - 현재인덱스 + 1 -->
-                        {{ question_list.paginator.count|sub:question_list.start_index|sub:forloop.counter0|add:1 }}
+                        {{ discussion_list.paginator.count|sub:discussion_list.start_index|sub:forloop.counter0|add:1 }}
                     </td>
                     <td>
-                        {% if question.voter.all.count > 0 %}
-                        <span class="badge badge-warning px-2 py-1">{{ question.voter.all.count }}</span>
+                        {% if discussion.voter.all.count > 0 %}
+                        <span class="badge badge-warning px-2 py-1">{{ discussion.voter.all.count }}</span>
                         {% endif %}
                     </td>
                     <td class="text-left">
-                        <a href="{% url 'pybo:detail' question.id %}">{{ question.subject }}</a>
-                        {% if question.answer_set.count > 0 %}
-                        <span class="text-danger small ml-2">{{ question.answer_set.count }}</span>
+                        <a href="{% url 'pybo:book_qa_detail' discussion.id %}">{{ discussion.subject }}</a>
+                        {% if discussion.replies.count > 0 %}
+                        <span class="text-danger small ml-2">{{ discussion.replies.count }}</span>
                         {% endif %}
                     </td>
-                    <td>{{ question.author.username }}</td>
-                    <td>{{ question.create_date }}</td>
+                    <td class="text-left">
+                        <small>
+                            <strong>{{ discussion.book.title }}</strong><br>
+                            <span class="text-muted">{{ discussion.book.author }}</span>
+                        </small>
+                    </td>
+                    <td>{{ discussion.author.username }}</td>
+                    <td>{{ discussion.create_date|date:"Y-m-d H:i" }}</td>
                 </tr>
                 {% endfor %}
                 {% else %}
                 <tr>
-                    <td colspan="5">질문이 없습니다.</td>
+                    <td colspan="6">토론이 없습니다.</td>
                 </tr>
                 {% endif %}
                 </tbody>
@@ -122,10 +86,9 @@
             <!-- 페이징처리 시작 -->
             <ul class="pagination justify-content-center">
                 <!-- 이전페이지 -->
-                {% if question_list.has_previous %}
+                {% if discussion_list.has_previous %}
                 <li class="page-item">
-                    <a class="page-link" 
-                        data-page="{{ question_list.previous_page_number }}" href="#">이전</a>
+                    <a class="page-link" data-page="{{ discussion_list.previous_page_number }}" href="#">이전</a>
                 </li>
                 {% else %}
                 <li class="page-item disabled">
@@ -133,9 +96,9 @@
                 </li>
                 {% endif %}
                 <!-- 페이지리스트 -->
-                {% for page_number in question_list.paginator.page_range %}
-                {% if page_number >= question_list.number|add:-5 and page_number <= question_list.number|add:5 %}
-                    {% if page_number == question_list.number %}
+                {% for page_number in discussion_list.paginator.page_range %}
+                {% if page_number >= discussion_list.number|add:-5 and page_number <= discussion_list.number|add:5 %}
+                    {% if page_number == discussion_list.number %}
                     <li class="page-item active" aria-current="page">
                         <a class="page-link" data-page="{{ page_number }}" href="#">
                             {{ page_number }}
@@ -151,10 +114,9 @@
                 {% endif %}
                 {% endfor %}
                 <!-- 다음페이지 -->
-                {% if question_list.has_next %}
+                {% if discussion_list.has_next %}
                 <li class="page-item">
-                    <a class="page-link" 
-                        data-page="{{ question_list.next_page_number }}" href="#">다음</a>
+                    <a class="page-link" data-page="{{ discussion_list.next_page_number }}" href="#">다음</a>
                 </li>
                 {% else %}
                 <li class="page-item disabled">
@@ -164,12 +126,13 @@
             </ul>
             <!-- 페이징처리 끝 -->
             <div class="text-center">
-                <a href="{% url 'pybo:question_create' %}" class="btn btn-primary">질문 등록하기</a>
+                <a href="{% url 'pybo:book_discussion_create' %}" class="btn btn-primary">새 토론 작성</a>
             </div>
         </div>
     </div>
 </div>
-<form id="searchForm" method="get" action="{% url 'index' %}">
+
+<form id="searchForm" method="get" action="{% url 'pybo:book_qa_index' %}">
     <input type="hidden" id="kw" name="kw" value="{{ kw|default_if_none:'' }}">
     <input type="hidden" name="page" id="page" value="{{ page }}">
     <input type="hidden" name="so" id="so" value="{{ so }}">
@@ -195,5 +158,4 @@
         })
     });
 </script>    
-{% endblock script %}
-    
+{% endblock script %} 
