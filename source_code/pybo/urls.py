@@ -17,7 +17,7 @@ urlpatterns = [
     path('book-qa/question/create/', question_views.BookQuestionCreateView.as_view(), name='book_question_create'),
     path('book-qa/question/modify/<int:pk>/', question_views.BookQuestionUpdateView.as_view(), name='book_question_modify'),
     path('book-qa/question/delete/<int:pk>/', question_views.BookQuestionDeleteView.as_view(), name='book_question_delete'),
-    path('book-qa/answer/create/<int:question_id>/', answer_views.BookAnswerCreateView.as_view(), name='book_answer_create'),
+    path('book-qa/answer/create/<int:pk>/', answer_views.BookAnswerCreateView.as_view(), name='book_answer_create'),
     path('book-qa/answer/modify/<int:pk>/', answer_views.BookAnswerUpdateView.as_view(), name='book_answer_modify'),
     path('book-qa/answer/delete/<int:pk>/', answer_views.BookAnswerDeleteView.as_view(), name='book_answer_delete'),
 
@@ -27,21 +27,21 @@ urlpatterns = [
     path('question/delete/<int:pk>/', question_views.QuestionDeleteView.as_view(), name='question_delete'),
 
     # answer_views.py
-    path('answer/create/<int:question_id>/', answer_views.AnswerCreateView.as_view(), name='answer_create'),
+    path('answer/create/<int:pk>/', answer_views.AnswerCreateView.as_view(), name='answer_create'),
     path('answer/modify/<int:pk>/', answer_views.AnswerUpdateView.as_view(), name='answer_modify'),
     path('answer/delete/<int:pk>/', answer_views.AnswerDeleteView.as_view(), name='answer_delete'),
 
     # comment_views.py
-    path('comment/create/question/<int:question_id>/', comment_views.comment_create_question, name='comment_create_question'),
-    path('comment/modify/question/<int:comment_id>/', comment_views.comment_modify_question, name='comment_modify_question'),
-    path('comment/delete/question/<int:comment_id>/', comment_views.comment_delete_question, name='comment_delete_question'),
-    path('comment/create/answer/<int:answer_id>/', comment_views.comment_create_answer, name='comment_create_answer'),
-    path('comment/modify/answer/<int:comment_id>/', comment_views.comment_modify_answer, name='comment_modify_answer'),
-    path('comment/delete/answer/<int:comment_id>/', comment_views.comment_delete_answer, name='comment_delete_answer'),
+    path('comment/create/question/<int:pk>/', comment_views.comment_create_question, name='comment_create_question'),
+    path('comment/modify/question/<int:pk>/', comment_views.comment_modify_question, name='comment_modify_question'),
+    path('comment/delete/question/<int:pk>/', comment_views.comment_delete_question, name='comment_delete_question'),
+    path('comment/create/answer/<int:pk>/', comment_views.comment_create_answer, name='comment_create_answer'),
+    path('comment/modify/answer/<int:pk>/', comment_views.comment_modify_answer, name='comment_modify_answer'),
+    path('comment/delete/answer/<int:pk>/', comment_views.comment_delete_answer, name='comment_delete_answer'),
 
     # vote_views.py
-    path('vote/question/<int:question_id>/', vote_views.vote_question, name='vote_question'),
-    path('vote/answer/<int:answer_id>/', vote_views.vote_answer, name='vote_answer'),
+    path('vote/question/<int:pk>/', vote_views.vote_question, name='vote_question'),
+    path('vote/answer/<int:pk>/', vote_views.vote_answer, name='vote_answer'),
 
     path('api/post/', receive_post, name='receive_post'),
 ]

@@ -8,6 +8,7 @@ import csv
 import io
 import json
 import re
+import uuid
 
 from ..models import Question, UploadedFile, Book
 from library.models import Book as LibraryBook
@@ -200,10 +201,14 @@ def book_upload_view(request):
                             if not book_info['title'] or not book_info['author']:
                                 continue
                             
-                            # 도서 생성
-                            book = Book.objects.create(
+                            # ISBN 자동 생성 (임시)
+                            isbn = str(uuid.uuid4())[:13]
+                            
+                            # 도서 생성 (LibraryBook 사용)
+                            book = LibraryBook.objects.create(
                                 title=book_info['title'],
                                 author=book_info['author'],
+                                isbn=isbn,
                                 publisher=book_info['publisher'],
                                 publication_year=int(book_info['publication_year']) if book_info['publication_year'] else None
                             )
@@ -250,10 +255,14 @@ def book_upload_view(request):
                                 error_count += 1
                                 continue
                             
-                            # 도서 생성
-                            book = Book.objects.create(
+                            # ISBN 자동 생성 (임시)
+                            isbn = str(uuid.uuid4())[:13]
+                            
+                            # 도서 생성 (LibraryBook 사용)
+                            book = LibraryBook.objects.create(
                                 title=row['title'].strip(),
                                 author=row['author'].strip(),
+                                isbn=isbn,
                                 publisher=row.get('publisher', '').strip(),
                                 publication_year=int(row.get('publication_year', 0)) if row.get('publication_year') else None
                             )
@@ -279,9 +288,13 @@ def book_upload_view(request):
                                     error_count += 1
                                     continue
                                 
-                                book = Book.objects.create(
+                                # ISBN 자동 생성 (임시)
+                                isbn = str(uuid.uuid4())[:13]
+                                
+                                book = LibraryBook.objects.create(
                                     title=item['title'].strip(),
                                     author=item['author'].strip(),
+                                    isbn=isbn,
                                     publisher=item.get('publisher', '').strip(),
                                     publication_year=int(item.get('publication_year', 0)) if item.get('publication_year') else None
                                 )

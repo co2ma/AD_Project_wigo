@@ -16,12 +16,12 @@ class AnswerCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.author = self.request.user
         form.instance.create_date = timezone.now()
-        form.instance.question = get_object_or_404(Question, pk=self.kwargs['question_id'])
+        form.instance.question = get_object_or_404(Question, pk=self.kwargs['pk'])
         messages.success(self.request, '답변이 등록되었습니다.')
         return super().form_valid(form)
 
     def get_success_url(self):
-        return resolve_url('pybo:detail', pk=self.kwargs['question_id'])
+        return resolve_url('pybo:detail', pk=self.kwargs['pk'])
 
 class AnswerUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Answer
@@ -63,12 +63,12 @@ class BookAnswerCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.author = self.request.user
         form.instance.create_date = timezone.now()
-        form.instance.question = get_object_or_404(Question, pk=self.kwargs['question_id'])
+        form.instance.question = get_object_or_404(Question, pk=self.kwargs['pk'])
         messages.success(self.request, '답변이 등록되었습니다.')
         return super().form_valid(form)
 
     def get_success_url(self):
-        return resolve_url('pybo:book_qa_detail', pk=self.kwargs['question_id'])
+        return resolve_url('pybo:book_qa_detail', pk=self.kwargs['pk'])
 
 class BookAnswerUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Answer

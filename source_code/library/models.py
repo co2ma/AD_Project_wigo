@@ -5,6 +5,8 @@ class Book(models.Model):
     title = models.CharField(max_length=100)
     author = models.CharField(max_length=100)
     isbn = models.CharField(max_length=20, unique=True)
+    publisher = models.CharField(max_length=100, blank=True, default='')
+    publication_year = models.IntegerField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
