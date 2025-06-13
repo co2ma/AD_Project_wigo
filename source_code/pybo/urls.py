@@ -11,6 +11,12 @@ urlpatterns = [
     path('<int:pk>/', base_views.QuestionDetailView.as_view(), name='detail'),
     path('book-upload/', base_views.book_upload_view, name='book_upload'),
 
+    # 도서 관리
+    path('books/', base_views.BookListView.as_view(), name='book_list'),
+    path('books/<int:book_id>/history/', base_views.BookHistoryView.as_view(), name='book_history'),
+    path('books/<int:book_id>/borrow/', base_views.borrow_book, name='borrow_book'),
+    path('books/<int:book_id>/return/', base_views.return_book, name='return_book'),
+
     # book_qa_views.py (새로운 책 Q&A 기능)
     path('book-qa/', base_views.BookQAIndexView.as_view(), name='book_qa_index'),
     path('book-qa/<int:pk>/', base_views.BookQADetailView.as_view(), name='book_qa_detail'),

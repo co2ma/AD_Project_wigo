@@ -72,10 +72,21 @@ class Book(models.Model):
         return cls.objects.all().order_by('title')
 
 
+class BorrowHistory(models.Model):
+    """도서 대여 기록"""
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='borrow_history')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='pybo_borrow_history')
+    borrowed_at = models.DateTimeField(auto_now_add=True)
+    returned_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.book.title}"
+
+
 class BookDiscussion(models.Model):
     """책에 대하여 게시판을 위한 독립적인 모델"""
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='author_discussion')
-    book = models.ForeignKey('library.Book', on_delete=models.CASCADE, related_name='discussions')
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='discussions')
     subject = models.CharField(max_length=200)
     content = models.TextField()
     create_date = models.DateTimeField(auto_now_add=True)

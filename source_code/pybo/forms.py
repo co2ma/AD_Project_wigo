@@ -30,6 +30,9 @@ class AnswerForm(forms.ModelForm):
         labels = {
             'content': '답변내용',
         }
+        widgets = {
+            'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 10}),
+        }
 
 
 class CommentForm(forms.ModelForm):
@@ -38,6 +41,9 @@ class CommentForm(forms.ModelForm):
         fields = ['content']
         labels = {
             'content': '댓글내용',
+        }
+        widgets = {
+            'content': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
 
 
@@ -58,12 +64,11 @@ class BookDiscussionForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        from library.models import Book as LibraryBook
-        self.fields['book'].queryset = LibraryBook.objects.all()
+        self.fields['book'].queryset = Book.objects.all()
         self.fields['book'].empty_label = "토론할 도서를 선택하세요"
 
 
-class ReplyForm(forms.ModelForm):
+class DiscussionReplyForm(forms.ModelForm):
     class Meta:
         model = DiscussionReply
         fields = ['content']

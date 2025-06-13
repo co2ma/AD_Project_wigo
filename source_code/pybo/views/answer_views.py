@@ -6,7 +6,7 @@ from django.views.generic import CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from ..models import Question, Answer, BookDiscussion, DiscussionReply
-from ..forms import AnswerForm, ReplyForm
+from ..forms import AnswerForm, DiscussionReplyForm
 
 class AnswerCreateView(LoginRequiredMixin, CreateView):
     model = Answer
@@ -104,7 +104,7 @@ class BookAnswerDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 # 책 토론 답글 관련 뷰들
 class ReplyCreateView(LoginRequiredMixin, CreateView):
     model = DiscussionReply
-    form_class = ReplyForm
+    form_class = DiscussionReplyForm
     template_name = 'pybo/reply_form.html'
 
     def form_valid(self, form):
@@ -118,7 +118,7 @@ class ReplyCreateView(LoginRequiredMixin, CreateView):
 
 class ReplyUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = DiscussionReply
-    form_class = ReplyForm
+    form_class = DiscussionReplyForm
     template_name = 'pybo/reply_form.html'
 
     def test_func(self):

@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-3">
+    <!-- 페이지 헤더 -->
+    <div class="jumbotron">
+        <h1 class="display-4">📚 도서 관리 시스템</h1>
+        <p class="lead">도서 정보를 관리하고 대여 기록을 확인할 수 있습니다.</p>
+        <hr class="my-4">
+        <a href="{% url 'pybo:index' %}" class="btn btn-secondary">← 메인 페이지로 돌아가기</a>
+    </div>
+
+    <!-- 도서 목록 -->
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">📖 등록된 도서 목록</h5>
+            <span class="badge badge-primary">{{ books.count }}권</span>
+        </div>
+        <div class="card-body">
+            {% if books %}
+            <div class="row">
+                {% for book in books %}
+                <div class="col-md-6 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ book.title }}</h5>
+                            <p class="card-text">
+                                <strong>저자:</strong> {{ book.author }}<br>
+                                <strong>출판사:</strong> {{ book.publisher|default:"미상" }}<br>
+                                <strong>출판년도:</strong> {{ book.publication_year|default:"미상" }}
+                            </p>
+                            <div class="mt-auto">
+                                <a href="{% url 'pybo:book_history' book.id %}" class="btn btn-primary">
+                                    대여 기록 보기
+                                </a>
+                                {% if user.is_authenticated %}
+                                <a href="{% url 'pybo:borrow_book' book.id %}" class="btn btn-success">
+                                    대여하기
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- 페이지네이션 -->
+            {% if is_paginated %}
+            <nav aria-label="Page navigation" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">이전</a>
+                    </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                    {% else %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">다음</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+
+            {% else %}
+            <div class="text-center py-4">
+                <h4>등록된 도서가 없습니다.</h4>
+                <p class="text-muted">도서 업로드 기능을 통해 도서를 추가할 수 있습니다.</p>
+                <a href="{% url 'pybo:book_upload' %}" class="btn btn-info">도서 업로드</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

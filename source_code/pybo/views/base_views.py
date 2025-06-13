@@ -1,17 +1,20 @@
 from django.core.paginator import Paginator
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.db.models import Q, Count
 from django.views.generic import ListView, DetailView
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseNotFound
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
 import csv
 import io
 import json
 import re
 import uuid
+from datetime import datetime
 
-from ..models import Question, UploadedFile, Book, BookDiscussion, DiscussionReply
-from library.models import Book as LibraryBook
+from ..models import Question, UploadedFile, Book, BookDiscussion, DiscussionReply, BorrowHistory
+from pybo.forms import QuestionForm, AnswerForm
 
 
 class IndexView(ListView):
@@ -201,14 +204,10 @@ def book_upload_view(request):
                             if not book_info['title'] or not book_info['author']:
                                 continue
                             
-                            # ISBN 자동 생성 (임시)
-                            isbn = str(uuid.uuid4())[:13]
-                            
-                            # 도서 생성 (LibraryBook 사용)
-                            book = LibraryBook.objects.create(
+                            # 도서 생성 (Pybo Book 사용)
+                            book = Book.objects.create(
                                 title=book_info['title'],
                                 author=book_info['author'],
-                                isbn=isbn,
                                 publisher=book_info['publisher'],
                                 publication_year=int(book_info['publication_year']) if book_info['publication_year'] else None
                             )
@@ -222,9 +221,7 @@ def book_upload_view(request):
                     if success_count > 0:
                         messages.success(request, f'{success_count}개의 도서가 성공적으로 등록되었습니다.')
                     if error_count > 0:
-                        messages.warning(request, f'{error_count}개의 항목에서 오류가 발생했습니다.')
-                    if success_count == 0 and error_count == 0:
-                        messages.warning(request, '유효한 도서 정보를 찾을 수 없습니다.')
+                        messages.warning(request, f'{error_count}개의 도서 등록에 실패했습니다.')
                         
                 except Exception as e:
                     messages.error(request, f'텍스트 처리 중 오류가 발생했습니다: {str(e)}')
@@ -232,14 +229,18 @@ def book_upload_view(request):
         # 파일 업로드 처리
         elif request.FILES.get('file'):
             file = request.FILES['file']
-            title = request.POST.get('title', '')
-            
-            # 파일 저장
-            uploaded = UploadedFile.objects.create(title=title, file=file)
-            uploaded_file_url = uploaded.file.url
-            
-            # 파일 확장자 확인
             file_extension = file.name.split('.')[-1].lower()
+            
+            if file_extension not in ['csv', 'json']:
+                messages.error(request, 'CSV 또는 JSON 파일만 업로드 가능합니다.')
+                return render(request, 'pybo/book_upload.html', {
+                    'uploaded_file_url': uploaded_file_url,
+                    'title': title,
+                    'success_count': success_count,
+                    'error_count': error_count,
+                    'errors': errors,
+                    'text_data': text_data
+                })
             
             try:
                 if file_extension == 'csv':
@@ -255,14 +256,10 @@ def book_upload_view(request):
                                 error_count += 1
                                 continue
                             
-                            # ISBN 자동 생성 (임시)
-                            isbn = str(uuid.uuid4())[:13]
-                            
-                            # 도서 생성 (LibraryBook 사용)
-                            book = LibraryBook.objects.create(
+                            # 도서 생성 (Pybo Book 사용)
+                            book = Book.objects.create(
                                 title=row['title'].strip(),
                                 author=row['author'].strip(),
-                                isbn=isbn,
                                 publisher=row.get('publisher', '').strip(),
                                 publication_year=int(row.get('publication_year', 0)) if row.get('publication_year') else None
                             )
@@ -288,13 +285,9 @@ def book_upload_view(request):
                                     error_count += 1
                                     continue
                                 
-                                # ISBN 자동 생성 (임시)
-                                isbn = str(uuid.uuid4())[:13]
-                                
-                                book = LibraryBook.objects.create(
+                                book = Book.objects.create(
                                     title=item['title'].strip(),
                                     author=item['author'].strip(),
-                                    isbn=isbn,
                                     publisher=item.get('publisher', '').strip(),
                                     publication_year=int(item.get('publication_year', 0)) if item.get('publication_year') else None
                                 )
@@ -309,21 +302,14 @@ def book_upload_view(request):
                     else:
                         errors.append("JSON 파일은 배열 형태여야 합니다.")
                         error_count += 1
-                else:
-                    errors.append("지원하지 않는 파일 형식입니다. CSV 또는 JSON 파일을 업로드해주세요.")
-                    error_count += 1
+                
+                if success_count > 0:
+                    messages.success(request, f'{success_count}개의 도서가 성공적으로 등록되었습니다.')
+                if error_count > 0:
+                    messages.warning(request, f'{error_count}개의 도서 등록에 실패했습니다.')
                     
             except Exception as e:
-                errors.append(f"파일 처리 중 오류가 발생했습니다: {str(e)}")
-                error_count += 1
-            
-            # 결과 메시지 표시
-            if success_count > 0:
-                messages.success(request, f'{success_count}개의 도서가 성공적으로 등록되었습니다.')
-            if error_count > 0:
-                messages.error(request, f'{error_count}개의 항목에서 오류가 발생했습니다.')
-                for error in errors[:5]:  # 최대 5개 오류만 표시
-                    messages.warning(request, error)
+                messages.error(request, f'파일 처리 중 오류가 발생했습니다: {str(e)}')
     
     return render(request, 'pybo/book_upload.html', {
         'uploaded_file_url': uploaded_file_url,
@@ -333,3 +319,83 @@ def book_upload_view(request):
         'errors': errors,
         'text_data': text_data
     })
+
+
+class BookListView(ListView):
+    """도서 목록 뷰"""
+    model = Book
+    template_name = 'pybo/book_list.html'
+    context_object_name = 'books'
+    paginate_by = 10
+
+    def get_queryset(self):
+        queryset = Book.objects.all().order_by('title')
+        return queryset
+
+
+class BookHistoryView(DetailView):
+    """도서 대여 기록 뷰"""
+    model = Book
+    template_name = 'pybo/book_history.html'
+    context_object_name = 'book'
+    pk_url_kwarg = 'book_id'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        book = self.get_object()
+        histories = BorrowHistory.objects.filter(book=book).order_by('-borrowed_at')
+        context['histories'] = histories
+        
+        # 현재 사용자가 대여 중인지 확인
+        if self.request.user.is_authenticated:
+            user_has_borrowed = BorrowHistory.objects.filter(
+                book=book,
+                user=self.request.user,
+                returned_at__isnull=True
+            ).exists()
+            context['user_has_borrowed'] = user_has_borrowed
+        
+        return context
+
+
+@login_required(login_url='common:login')
+def borrow_book(request, book_id):
+    """도서 대여"""
+    book = get_object_or_404(Book, pk=book_id)
+    
+    # 이미 대여 중인지 확인
+    active_borrow = BorrowHistory.objects.filter(
+        book=book, 
+        user=request.user, 
+        returned_at__isnull=True
+    ).first()
+    
+    if active_borrow:
+        messages.warning(request, '이미 대여 중인 도서입니다.')
+    else:
+        BorrowHistory.objects.create(book=book, user=request.user)
+        messages.success(request, f'"{book.title}" 도서를 대여했습니다.')
+    
+    return redirect('pybo:book_history', book_id=book_id)
+
+
+@login_required(login_url='common:login')
+def return_book(request, book_id):
+    """도서 반납"""
+    book = get_object_or_404(Book, pk=book_id)
+    
+    # 대여 중인 기록 찾기
+    active_borrow = BorrowHistory.objects.filter(
+        book=book, 
+        user=request.user, 
+        returned_at__isnull=True
+    ).first()
+    
+    if active_borrow:
+        active_borrow.returned_at = timezone.now()
+        active_borrow.save()
+        messages.success(request, f'"{book.title}" 도서를 반납했습니다.')
+    else:
+        messages.warning(request, '대여 중인 도서가 아닙니다.')
+    
+    return redirect('pybo:book_history', book_id=book_id)
