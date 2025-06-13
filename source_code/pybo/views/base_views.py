@@ -9,8 +9,8 @@ import io
 import json
 import re
 
-from ..models import Question, UploadedFile
-from library.models import Book
+from ..models import Question, UploadedFile, Book
+from library.models import Book as LibraryBook
 
 
 class IndexView(ListView):
@@ -59,6 +59,62 @@ class IndexView(ListView):
 class QuestionDetailView(DetailView):
     model = Question
     template_name = 'pybo/question_detail.html'
+    context_object_name = 'question'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        question = self.get_object()
+        context['answer_list'] = question.answer_set.all()
+        return context
+
+
+class BookQAIndexView(ListView):
+    model = Question
+    template_name = 'pybo/book_qa_list.html'
+    context_object_name = 'question_list'
+    paginate_by = 10
+
+    def get_queryset(self):
+        question_list = Question.objects.filter(book__isnull=False).annotate(
+            num_voter=Count('voter')).order_by('-create_date')
+        return question_list
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        page = self.request.GET.get('page', '1')
+        kw = self.request.GET.get('kw', '')
+        so = self.request.GET.get('so', 'recent')
+        
+        question_list = Question.objects.filter(book__isnull=False).annotate(
+            num_voter=Count('voter'))
+        if kw:
+            question_list = question_list.filter(
+                Q(subject__icontains=kw) |  # 제목 검색
+                Q(content__icontains=kw) |  # 내용 검색
+                Q(author__username__icontains=kw) |  # 질문 글쓴이 검색
+                Q(answer__author__username__icontains=kw) |  # 답변 글쓴이 검색
+                Q(book__title__icontains=kw)  # 책 제목 검색
+            ).distinct()
+        
+        if so == 'recommend':
+            question_list = question_list.annotate(num_voter=Count('voter')).order_by('-num_voter', '-create_date')
+        elif so == 'popular':
+            question_list = question_list.annotate(num_answer=Count('answer')).order_by('-num_answer', '-create_date')
+        else:  # recent
+            question_list = question_list.order_by('-create_date')
+        
+        paginator = Paginator(question_list, 10)
+        page_obj = paginator.get_page(page)
+        context['question_list'] = page_obj
+        context['page'] = page
+        context['kw'] = kw
+        context['so'] = so
+        return context
+
+
+class BookQADetailView(DetailView):
+    model = Question
+    template_name = 'pybo/book_qa_detail.html'
     context_object_name = 'question'
 
     def get_context_data(self, **kwargs):

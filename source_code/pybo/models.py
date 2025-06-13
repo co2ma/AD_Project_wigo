@@ -10,6 +10,7 @@ class Question(models.Model):
     create_date = models.DateTimeField()
     modify_date = models.DateTimeField(null=True, blank=True)
     voter = models.ManyToManyField(User, related_name='voter_question')
+    book = models.ForeignKey('Book', on_delete=models.SET_NULL, null=True, blank=True, related_name='questions')
 
     def __str__(self):
         return self.subject
@@ -36,6 +37,8 @@ class Comment(models.Model):
 class Book(models.Model):
     title = models.CharField(max_length=200)
     author = models.CharField(max_length=100)
+    publisher = models.CharField(max_length=100, blank=True, default='')
+    publication_year = models.IntegerField(null=True, blank=True)
     
     def __str__(self):
         return f"{self.title} by {self.author}"

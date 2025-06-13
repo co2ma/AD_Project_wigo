@@ -8,16 +8,19 @@
     <div class="collapse navbar-collapse flex-grow-0" id="navbarNav">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'pybo:index' %}">Q&A 게시판</a>
-            </li>
-            <li class="nav-item">
                 <a class="nav-link" href="{% url 'library:book_list' %}">도서 관리</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'pybo:request_info' %}">요청 정보</a>
+                <a class="nav-link" href="{% url 'pybo:book_upload' %}">책 정보 업로드</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'pybo:book_upload' %}">책 정보 업로드</a>
+                <a class="nav-link" href="{% url 'pybo:book_qa_index' %}">책에 대하여</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'pybo:index' %}">사이트 Q&A</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'pybo:request_info' %}">요청 정보</a>
             </li>
         </ul>
         <ul class="navbar-nav">

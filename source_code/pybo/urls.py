@@ -12,6 +12,16 @@ urlpatterns = [
     path('request-info/', base_views.request_info_view, name='request_info'),
     path('book-upload/', base_views.book_upload_view, name='book_upload'),
 
+    # book_qa_views.py (새로운 책 Q&A 기능)
+    path('book-qa/', base_views.BookQAIndexView.as_view(), name='book_qa_index'),
+    path('book-qa/<int:pk>/', base_views.BookQADetailView.as_view(), name='book_qa_detail'),
+    path('book-qa/question/create/', question_views.BookQuestionCreateView.as_view(), name='book_question_create'),
+    path('book-qa/question/modify/<int:pk>/', question_views.BookQuestionUpdateView.as_view(), name='book_question_modify'),
+    path('book-qa/question/delete/<int:pk>/', question_views.BookQuestionDeleteView.as_view(), name='book_question_delete'),
+    path('book-qa/answer/create/<int:question_id>/', answer_views.BookAnswerCreateView.as_view(), name='book_answer_create'),
+    path('book-qa/answer/modify/<int:pk>/', answer_views.BookAnswerUpdateView.as_view(), name='book_answer_modify'),
+    path('book-qa/answer/delete/<int:pk>/', answer_views.BookAnswerDeleteView.as_view(), name='book_answer_delete'),
+
     # question_views.py
     path('question/create/', question_views.QuestionCreateView.as_view(), name='question_create'),
     path('question/modify/<int:pk>/', question_views.QuestionUpdateView.as_view(), name='question_modify'),
