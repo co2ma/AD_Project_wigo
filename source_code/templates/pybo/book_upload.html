@@ -1,0 +1,282 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-3">
+    <!-- 페이지 헤더 -->
+    <div class="jumbotron">
+        <h1 class="display-4">📚 책 정보 업로드</h1>
+        <p class="lead">텍스트 입력 또는 CSV/JSON 파일을 업로드하여 도서 정보를 일괄 등록할 수 있습니다.</p>
+        <hr class="my-4">
+        <a href="{% url 'pybo:index' %}" class="btn btn-secondary">← 메인 페이지로 돌아가기</a>
+    </div>
+
+    <!-- 입력 방법 선택 탭 -->
+    <ul class="nav nav-tabs mb-4" id="uploadTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <a class="nav-link active" id="text-tab" data-toggle="tab" href="#text" role="tab" aria-controls="text" aria-selected="true">
+                📝 텍스트 입력
+            </a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" id="file-tab" data-toggle="tab" href="#file" role="tab" aria-controls="file" aria-selected="false">
+                📁 파일 업로드
+            </a>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="uploadTabContent">
+        <!-- 텍스트 입력 탭 -->
+        <div class="tab-pane fade show active" id="text" role="tabpanel" aria-labelledby="text-tab">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">📝 텍스트 입력 형식</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>한 줄에 하나의 도서 정보를 입력하세요:</p>
+                            <pre class="bg-light p-2 rounded">제목 | 저자 | 출판사 | 출판년도
+파이썬 프로그래밍 | 김철수 | 한빛미디어 | 2023
+장고 웹 개발 | 이영희 | 정보문화사 | 2022
+데이터베이스 설계 | 박민수 | 교보문고 | 2021</pre>
+                            <p class="text-muted small">* 구분자: | (파이프), , (쉼표), 탭, - (하이픈), / (슬래시)</p>
+                            <p class="text-muted small">* 제목과 저자는 필수, 출판사와 출판년도는 선택사항</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">💡 입력 예시</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>다양한 형식으로 입력 가능합니다:</p>
+                            <pre class="bg-light p-2 rounded">파이썬 프로그래밍, 김철수, 한빛미디어, 2023
+장고 웹 개발 - 이영희 - 정보문화사 - 2022
+데이터베이스 설계 / 박민수 / 교보문고 / 2021
+웹 개발 실전 최지영 길벗 2020</pre>
+                            <p class="text-muted small">* 자동으로 구분자를 인식하여 파싱합니다</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 텍스트 입력 폼 -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">📤 텍스트 입력</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="title">입력 설명</label>
+                            <input type="text" class="form-control" id="title" name="title" placeholder="예: 도서관 신규 도서 목록" value="{{ title|default:'' }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="text_data">도서 정보 입력</label>
+                            <textarea class="form-control" id="text_data" name="text_data" rows="10" placeholder="제목 | 저자 | 출판사 | 출판년도&#10;파이썬 프로그래밍 | 김철수 | 한빛미디어 | 2023&#10;장고 웹 개발 | 이영희 | 정보문화사 | 2022">{{ text_data }}</textarea>
+                            <small class="form-text text-muted">한 줄에 하나의 도서 정보를 입력하세요. 제목과 저자는 필수입니다.</small>
+                        </div>
+                        <button type="submit" class="btn btn-primary">등록하기</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- 파일 업로드 탭 -->
+        <div class="tab-pane fade" id="file" role="tabpanel" aria-labelledby="file-tab">
+            <!-- 파일 형식 안내 -->
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">📄 CSV 파일 형식</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>CSV 파일은 다음과 같은 형식이어야 합니다:</p>
+                            <pre class="bg-light p-2 rounded">title,author,publisher,publication_year
+파이썬 프로그래밍,김철수,한빛미디어,2023
+장고 웹 개발,이영희,정보문화사,2022
+데이터베이스 설계,박민수,교보문고,2021</pre>
+                            <p class="text-muted small">* title과 author는 필수, publisher와 publication_year는 선택사항</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <h5 class="mb-0">📄 JSON 파일 형식</h5>
+                        </div>
+                        <div class="card-body">
+                            <p>JSON 파일은 다음과 같은 형식이어야 합니다:</p>
+                            <pre class="bg-light p-2 rounded">[
+  {
+    "title": "파이썬 프로그래밍",
+    "author": "김철수",
+    "publisher": "한빛미디어",
+    "publication_year": 2023
+  },
+  {
+    "title": "장고 웹 개발",
+    "author": "이영희",
+    "publisher": "정보문화사",
+    "publication_year": 2022
+  }
+]</pre>
+                            <p class="text-muted small">* title과 author는 필수, publisher와 publication_year는 선택사항</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 파일 업로드 폼 -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">📤 파일 업로드</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="file_title">파일 설명</label>
+                            <input type="text" class="form-control" id="file_title" name="title" placeholder="예: 도서관 신규 도서 목록">
+                        </div>
+                        <div class="form-group">
+                            <label for="file">파일 선택</label>
+                            <input type="file" class="form-control-file" id="file" name="file" accept=".csv,.json" required>
+                            <small class="form-text text-muted">CSV 또는 JSON 파일만 업로드 가능합니다.</small>
+                        </div>
+                        <button type="submit" class="btn btn-primary">업로드</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 샘플 파일 다운로드 -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">📥 샘플 파일 다운로드</h5>
+                </div>
+                <div class="card-body">
+                    <p>테스트용 샘플 파일을 다운로드할 수 있습니다:</p>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <a href="#" class="btn btn-outline-primary" onclick="downloadSampleCSV()">
+                                📄 CSV 샘플 파일 다운로드
+                            </a>
+                        </div>
+                        <div class="col-md-6">
+                            <a href="#" class="btn btn-outline-success" onclick="downloadSampleJSON()">
+                                📄 JSON 샘플 파일 다운로드
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 업로드 결과 -->
+    {% if uploaded_file_url or success_count > 0 or error_count > 0 %}
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0">📋 업로드 결과</h5>
+        </div>
+        <div class="card-body">
+            {% if uploaded_file_url %}
+            <p><strong>업로드된 파일:</strong> {{ title }}</p>
+            <p><strong>파일 경로:</strong> <a href="{{ uploaded_file_url }}" target="_blank">{{ uploaded_file_url }}</a></p>
+            {% endif %}
+            
+            {% if success_count > 0 %}
+            <div class="alert alert-success">
+                <strong>✅ 성공:</strong> {{ success_count }}개의 도서가 성공적으로 등록되었습니다.
+            </div>
+            {% endif %}
+            
+            {% if error_count > 0 %}
+            <div class="alert alert-danger">
+                <strong>❌ 오류:</strong> {{ error_count }}개의 항목에서 오류가 발생했습니다.
+            </div>
+            {% endif %}
+            
+            {% if errors %}
+            <div class="alert alert-warning">
+                <strong>⚠️ 오류 상세:</strong>
+                <ul class="mb-0">
+                    {% for error in errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            
+            {% if success_count > 0 %}
+            <div class="text-center mt-3">
+                <a href="{% url 'library:book_list' %}" class="btn btn-success">등록된 도서 목록 보기</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block script %}
+<script>
+function downloadSampleCSV() {
+    const csvContent = "title,author,publisher,publication_year\n파이썬 프로그래밍,김철수,한빛미디어,2023\n장고 웹 개발,이영희,정보문화사,2022\n데이터베이스 설계,박민수,교보문고,2021\n웹 개발 실전,최지영,길벗,2020";
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "sample_books.csv";
+    link.click();
+}
+
+function downloadSampleJSON() {
+    const jsonContent = JSON.stringify([
+        {
+            "title": "파이썬 프로그래밍",
+            "author": "김철수",
+            "publisher": "한빛미디어",
+            "publication_year": 2023
+        },
+        {
+            "title": "장고 웹 개발",
+            "author": "이영희",
+            "publisher": "정보문화사",
+            "publication_year": 2022
+        },
+        {
+            "title": "데이터베이스 설계",
+            "author": "박민수",
+            "publisher": "교보문고",
+            "publication_year": 2021
+        },
+        {
+            "title": "웹 개발 실전",
+            "author": "최지영",
+            "publisher": "길벗",
+            "publication_year": 2020
+        }
+    ], null, 2);
+    const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "sample_books.json";
+    link.click();
+}
+
+// 탭 전환 시 폼 초기화
+$(document).ready(function() {
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        // 탭이 변경될 때 폼 필드 초기화
+        if (e.target.id === 'text-tab') {
+            $('#file').prop('required', false);
+        } else if (e.target.id === 'file-tab') {
+            $('#file').prop('required', true);
+        }
+    });
+});
+</script>
+{% endblock %} 

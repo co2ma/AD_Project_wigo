@@ -2,110 +2,181 @@
 {% load pybo_filter %}
 {% block content %}
 <div class="container my-3">
-    <table class="table">
-        <thead>
-        <tr class="text-center thead-dark">
-            <th>번호</th>
-            <th>추천</th>
-            <th style="width:50%">제목</th>
-            <th>글쓴이</th>
-            <th>작성일시</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% if question_list %}
-        {% for question in question_list %}
-        <tr class="text-center">
-            <td>
-                <!-- 번호 = 전체건수 - 시작인덱스 - 현재인덱스 + 1 -->
-                {{ question_list.paginator.count|sub:question_list.start_index|sub:forloop.counter0|add:1 }}
-            </td>
-            <td>
-                {% if question.voter.all.count > 0 %}
-                <span class="badge badge-warning px-2 py-1">{{ question.voter.all.count }}</span>
-                {% endif %}
-            </td>
-            <td class="text-left">
-                <a href="{% url 'pybo:detail' question.id %}">{{ question.subject }}</a>
-                {% if question.answer_set.count > 0 %}
-                <span class="text-danger small ml-2">{{ question.answer_set.count }}</span>
-                {% endif %}
-            </td>
-            <td>{{ question.author.username }}</td>  <!-- 글쓴이 추가 -->
-            <td>{{ question.create_date }}</td>
-        </tr>
-        {% endfor %}
-        {% else %}
-        <tr>
-            <td colspan="3">질문이 없습니다.</td>
-        </tr>
-        {% endif %}
-        </tbody>
-    </table>
+    <!-- 대시보드 헤더 -->
+    <div class="jumbotron">
+        <h1 class="display-4">AD Project 대시보드</h1>
+        <p class="lead">도서 관리 시스템과 Q&A 게시판을 한 곳에서 관리하세요.</p>
+        <hr class="my-4">
+        <p>아래 카드를 통해 각 시스템에 빠르게 접근할 수 있습니다.</p>
+    </div>
 
-    <!-- 검색창 시작 -->
-    <div class="row justify-content-between my-3">
-        <div class="col-2">
-            <select class="form-control so">
-                <option value="recent" {% if so == 'recent' %}selected{% endif %}>최신순</option>
-                <option value="recommend" {% if so == 'recommend' %}selected{% endif %}>추천순</option>
-                <option value="popular" {% if so == 'popular' %}selected{% endif %}>인기순</option>
-            </select>
+    <!-- 시스템 카드 -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">📚 도서 관리 시스템</h5>
+                    <p class="card-text">도서 정보를 관리하고 대여 기록을 확인할 수 있습니다.</p>
+                    <a href="{% url 'library:book_list' %}" class="btn btn-primary">도서 관리로 이동</a>
+                </div>
+            </div>
         </div>
-        <div class="col-4 input-group">
-            <input type="text" class="form-control kw" value="{{ kw|default_if_none:'' }}">
-            <div class="input-group-append">
-                <button class="btn btn-outline-secondary" type="button" id="btn_search">찾기</button>
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">💬 Q&A 게시판</h5>
+                    <p class="card-text">질문과 답변을 통해 지식을 공유할 수 있습니다.</p>
+                    <a href="{% url 'pybo:question_create' %}" class="btn btn-success">질문 등록하기</a>
+                </div>
             </div>
         </div>
     </div>
-    <!-- 검색창 끝 -->
 
-    <!-- 페이징처리 시작 -->
-    <ul class="pagination justify-content-center">
-        <!-- 이전페이지 -->
-        {% if question_list.has_previous %}
-        <li class="page-item">
-            <a class="page-link" 
-                data-page="{{ question_list.previous_page_number }}" href="#">이전</a>
-        </li>
-        {% else %}
-        <li class="page-item disabled">
-            <a class="page-link" tabindex="-1" aria-disabled="true" href="#">이전</a>
-        </li>
-        {% endif %}
-        <!-- 페이지리스트 -->
-        {% for page_number in question_list.paginator.page_range %}
-        {% if page_number >= question_list.number|add:-5 and page_number <= question_list.number|add:5 %}
-            {% if page_number == question_list.number %}
-            <li class="page-item active" aria-current="page">
-                <a class="page-link" data-page="{{ page_number }}" href="#">
-                    {{ page_number }}
-                </a>
-            </li>
-            {% else %}
-            <li class="page-item">
-                <a class="page-link" data-page="{{ page_number }}" href="#">
-                    {{ page_number }}
-                </a>
-            </li>
-            {% endif %}
-        {% endif %}
-        {% endfor %}
-        <!-- 다음페이지 -->
-        {% if question_list.has_next %}
-        <li class="page-item">
-            <a class="page-link" 
-                data-page="{{ question_list.next_page_number }}" href="#"}">다음</a>
-        </li>
-        {% else %}
-        <li class="page-item disabled">
-            <a class="page-link" tabindex="-1" aria-disabled="true" href="#">다음</a>
-        </li>
-        {% endif %}
-    </ul>
-    <!-- 페이징처리 끝 -->
-    <a href="{% url 'pybo:question_create' %}" class="btn btn-primary">질문 등록하기</a>
+    <!-- 유틸리티 카드 -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">🔍 요청 정보</h5>
+                    <p class="card-text">HTTP 요청 정보를 확인할 수 있습니다.</p>
+                    <a href="{% url 'pybo:request_info' %}" class="btn btn-info">요청 정보 보기</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">📚 책 정보 업로드</h5>
+                    <p class="card-text">CSV 또는 JSON 파일로 도서 정보를 일괄 등록할 수 있습니다.</p>
+                    <a href="{% url 'pybo:book_upload' %}" class="btn btn-warning">책 정보 업로드</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">🔧 관리자</h5>
+                    <p class="card-text">Django 관리자 페이지에 접근합니다.</p>
+                    <a href="/admin/" class="btn btn-secondary">관리자 페이지</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 최근 질문 목록 -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">📝 최근 질문 목록</h5>
+        </div>
+        <div class="card-body">
+            <table class="table">
+                <thead>
+                <tr class="text-center thead-dark">
+                    <th>번호</th>
+                    <th>추천</th>
+                    <th style="width:50%">제목</th>
+                    <th>글쓴이</th>
+                    <th>작성일시</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if question_list %}
+                {% for question in question_list %}
+                <tr class="text-center">
+                    <td>
+                        <!-- 번호 = 전체건수 - 시작인덱스 - 현재인덱스 + 1 -->
+                        {{ question_list.paginator.count|sub:question_list.start_index|sub:forloop.counter0|add:1 }}
+                    </td>
+                    <td>
+                        {% if question.voter.all.count > 0 %}
+                        <span class="badge badge-warning px-2 py-1">{{ question.voter.all.count }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-left">
+                        <a href="{% url 'pybo:detail' question.id %}">{{ question.subject }}</a>
+                        {% if question.answer_set.count > 0 %}
+                        <span class="text-danger small ml-2">{{ question.answer_set.count }}</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ question.author.username }}</td>
+                    <td>{{ question.create_date }}</td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="5">질문이 없습니다.</td>
+                </tr>
+                {% endif %}
+                </tbody>
+            </table>
+
+            <!-- 검색창 시작 -->
+            <div class="row justify-content-between my-3">
+                <div class="col-2">
+                    <select class="form-control so">
+                        <option value="recent" {% if so == 'recent' %}selected{% endif %}>최신순</option>
+                        <option value="recommend" {% if so == 'recommend' %}selected{% endif %}>추천순</option>
+                        <option value="popular" {% if so == 'popular' %}selected{% endif %}>인기순</option>
+                    </select>
+                </div>
+                <div class="col-4 input-group">
+                    <input type="text" class="form-control kw" value="{{ kw|default_if_none:'' }}">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-secondary" type="button" id="btn_search">찾기</button>
+                    </div>
+                </div>
+            </div>
+            <!-- 검색창 끝 -->
+
+            <!-- 페이징처리 시작 -->
+            <ul class="pagination justify-content-center">
+                <!-- 이전페이지 -->
+                {% if question_list.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" 
+                        data-page="{{ question_list.previous_page_number }}" href="#">이전</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" tabindex="-1" aria-disabled="true" href="#">이전</a>
+                </li>
+                {% endif %}
+                <!-- 페이지리스트 -->
+                {% for page_number in question_list.paginator.page_range %}
+                {% if page_number >= question_list.number|add:-5 and page_number <= question_list.number|add:5 %}
+                    {% if page_number == question_list.number %}
+                    <li class="page-item active" aria-current="page">
+                        <a class="page-link" data-page="{{ page_number }}" href="#">
+                            {{ page_number }}
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item">
+                        <a class="page-link" data-page="{{ page_number }}" href="#">
+                            {{ page_number }}
+                        </a>
+                    </li>
+                    {% endif %}
+                {% endif %}
+                {% endfor %}
+                <!-- 다음페이지 -->
+                {% if question_list.has_next %}
+                <li class="page-item">
+                    <a class="page-link" 
+                        data-page="{{ question_list.next_page_number }}" href="#">다음</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled">
+                    <a class="page-link" tabindex="-1" aria-disabled="true" href="#">다음</a>
+                </li>
+                {% endif %}
+            </ul>
+            <!-- 페이징처리 끝 -->
+            <div class="text-center">
+                <a href="{% url 'pybo:question_create' %}" class="btn btn-primary">질문 등록하기</a>
+            </div>
+        </div>
+    </div>
 </div>
 <form id="searchForm" method="get" action="{% url 'index' %}">
     <input type="hidden" id="kw" name="kw" value="{{ kw|default_if_none:'' }}">

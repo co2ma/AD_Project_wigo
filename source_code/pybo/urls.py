@@ -10,7 +10,7 @@ urlpatterns = [
     path('', base_views.IndexView.as_view(), name='index'),
     path('<int:pk>/', base_views.QuestionDetailView.as_view(), name='detail'),
     path('request-info/', base_views.request_info_view, name='request_info'),
-    path('upload/', base_views.file_upload_view, name='upload_file'),
+    path('book-upload/', base_views.book_upload_view, name='book_upload'),
 
     # question_views.py
     path('question/create/', question_views.QuestionCreateView.as_view(), name='question_create'),

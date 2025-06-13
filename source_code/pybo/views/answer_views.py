@@ -21,7 +21,7 @@ class AnswerCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return resolve_url('pybo:detail', question_id=self.kwargs['question_id'])
+        return resolve_url('pybo:detail', pk=self.kwargs['question_id'])
 
 class AnswerUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Answer
@@ -37,7 +37,7 @@ class AnswerUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return resolve_url('pybo:detail', question_id=self.object.question.id)
+        return resolve_url('pybo:detail', pk=self.object.question.id)
 
 class AnswerDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Answer
@@ -51,4 +51,4 @@ class AnswerDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
         return super().delete(request, *args, **kwargs)
 
     def get_success_url(self):
-        return resolve_url('pybo:detail', question_id=self.object.question.id)
+        return resolve_url('pybo:detail', pk=self.object.question.id)

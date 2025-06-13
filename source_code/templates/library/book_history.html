@@ -1,25 +1,82 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <title>📖 대출 이력</title>
-</head>
-<body>
-    <h2>📖 대출 이력: {{ book.title }}</h2>
-    <ul>
-        {% for history in histories %}
-        <li>
-            {{ history.user.username }} - {{ history.borrowed_at|date:"Y-m-d H:i" }}
-            {% if history.returned_at %}
-            (반납: {{ history.returned_at|date:"Y-m-d" }})
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-3">
+    <!-- 페이지 헤더 -->
+    <div class="jumbotron">
+        <h1 class="display-4">📖 대여 기록</h1>
+        <p class="lead">{{ book.title }} - {{ book.author }}</p>
+        <hr class="my-4">
+        <a href="{% url 'library:book_list' %}" class="btn btn-secondary">← 도서 목록으로 돌아가기</a>
+    </div>
+
+    <!-- 도서 정보 -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">📚 도서 정보</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>제목:</strong> {{ book.title }}</p>
+                    <p><strong>저자:</strong> {{ book.author }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>출판사:</strong> {{ book.publisher }}</p>
+                    <p><strong>출판년도:</strong> {{ book.publication_year }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 대여 기록 -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">📋 대여 기록 목록</h5>
+        </div>
+        <div class="card-body">
+            {% if histories %}
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>대여자</th>
+                            <th>대여일시</th>
+                            <th>반납일시</th>
+                            <th>상태</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for history in histories %}
+                        <tr>
+                            <td>{{ history.user.username }}</td>
+                            <td>{{ history.borrowed_at|date:"Y-m-d H:i" }}</td>
+                            <td>
+                                {% if history.returned_at %}
+                                {{ history.returned_at|date:"Y-m-d H:i" }}
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if history.returned_at %}
+                                <span class="badge badge-success">반납완료</span>
+                                {% else %}
+                                <span class="badge badge-warning">대여중</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
             {% else %}
-            🕒미반납
+            <div class="text-center py-4">
+                <h4>대여 기록이 없습니다.</h4>
+                <p class="text-muted">이 도서는 아직 대여된 적이 없습니다.</p>
+            </div>
             {% endif %}
-        </li>
-        {% empty %}
-        <li>대출 이력이 없습니다.</li>
-        {% endfor %}
-    </ul>
-    <a href="{% url 'library:book_list' %}">← 책 목록으로</a>
-</body>
-</html> 
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -25,7 +25,7 @@ urlpatterns = [
     path('pybo/', include('pybo.urls')),
     path('common/', include('common.urls')),
     path('library/', include('library.urls')),
-    path('', base_views.index, name='index'),  # '/' 에 해당되는 path
+    path('', base_views.IndexView.as_view(), name='index'),  # '/' 에 해당되는 path
 ]
 
 if settings.DEBUG:

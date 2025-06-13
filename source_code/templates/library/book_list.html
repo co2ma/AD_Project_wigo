@@ -1,21 +1,76 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <title>📚 책 목록</title>
-</head>
-<body>
-    <h1>📚 책 목록</h1>
-    <ul>
-        {% for book in books %}
-        <li>
-            <a href="{% url 'library:book_history' book.id %}">
-                {{ book.title }} by {{ book.author }}
-            </a>
-        </li>
-        {% empty %}
-        <li>등록된 책이 없습니다.</li>
-        {% endfor %}
-    </ul>
-</body>
-</html> 
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container my-3">
+    <!-- 페이지 헤더 -->
+    <div class="jumbotron">
+        <h1 class="display-4">📚 도서 관리 시스템</h1>
+        <p class="lead">도서 정보를 관리하고 대여 기록을 확인할 수 있습니다.</p>
+        <hr class="my-4">
+        <a href="{% url 'pybo:index' %}" class="btn btn-secondary">← 메인 페이지로 돌아가기</a>
+    </div>
+
+    <!-- 도서 목록 -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">📖 등록된 도서 목록</h5>
+        </div>
+        <div class="card-body">
+            {% if books %}
+            <div class="row">
+                {% for book in books %}
+                <div class="col-md-6 mb-3">
+                    <div class="card">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ book.title }}</h5>
+                            <p class="card-text">
+                                <strong>저자:</strong> {{ book.author }}<br>
+                                <strong>출판사:</strong> {{ book.publisher }}<br>
+                                <strong>출판년도:</strong> {{ book.publication_year }}
+                            </p>
+                            <a href="{% url 'library:book_history' book.id %}" class="btn btn-primary">
+                                대여 기록 보기
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <h4>등록된 도서가 없습니다.</h4>
+                <p class="text-muted">Django 관리자 페이지에서 도서를 추가할 수 있습니다.</p>
+                <a href="/admin/" class="btn btn-info">관리자 페이지로 이동</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- API 테스트 섹션 -->
+    <div class="card mt-4">
+        <div class="card-header">
+            <h5 class="mb-0">🔧 API 테스트</h5>
+        </div>
+        <div class="card-body">
+            <p>도서 관리 API를 테스트할 수 있습니다:</p>
+            <div class="row">
+                <div class="col-md-4">
+                    <a href="{% url 'library:api_book_list' %}" class="btn btn-outline-primary">
+                        도서 목록 API
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="{% url 'library:api_book_detail' 1 %}" class="btn btn-outline-success">
+                        도서 상세 API (ID: 1)
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="{% url 'library:api_book_history' 1 %}" class="btn btn-outline-info">
+                        대여 기록 API (ID: 1)
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
