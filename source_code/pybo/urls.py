@@ -9,7 +9,6 @@ urlpatterns = [
     # base_views.py
     path('', base_views.IndexView.as_view(), name='index'),
     path('<int:pk>/', base_views.QuestionDetailView.as_view(), name='detail'),
-    path('request-info/', base_views.request_info_view, name='request_info'),
     path('book-upload/', base_views.book_upload_view, name='book_upload'),
 
     # book_qa_views.py (새로운 책 Q&A 기능)
