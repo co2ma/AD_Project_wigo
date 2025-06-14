@@ -17,6 +17,10 @@
             <div class="bg-light text-center p-3 border font-weight-bolder mb-1">{{question.voter.count}}</div>
             <a href="#" data-uri="{% url 'pybo:vote_question' question.id  %}"
                class="recommend btn btn-sm btn-secondary btn-block my-1">추천</a>
+            <button class="toggle-bookmark btn btn-sm {% if is_bookmarked %}btn-warning{% else %}btn-outline-warning{% endif %} btn-block my-1"
+                    data-question-id="{{ question.id }}">
+                북마크
+            </button>
         </div>
         <div class="col-11"> <!-- 질문영역 -->
             <div class="card">
@@ -165,6 +169,21 @@ $(document).ready(function(){
         if(confirm("정말로 추천하시겠습니까?")) {
             location.href = $(this).data('uri');
         }
+    });
+    $(".toggle-bookmark").on('click', function() {
+        var questionId = $(this).data('question-id');
+        $.ajax({
+            url: "{% url 'pybo:toggle_bookmark' 0 %}".replace('0', questionId),
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    location.reload();
+                }
+            }
+        });
     });
 });
 </script>

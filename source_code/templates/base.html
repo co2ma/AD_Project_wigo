@@ -10,6 +10,170 @@
     <!-- pybo CSS -->
     <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
     <title>Hello, pybo!</title>
+    <style>
+        /* 기본 라이트 모드 */
+        body {
+            background-color: white;
+            color: #333333;
+            transition: all 0.3s ease;
+        }
+
+        /* 다크 모드 */
+        body.dark-mode {
+            background-color: #121212;
+            color: #e0e0e0;
+        }
+
+        /* 다크모드에서의 네비게이션 바 */
+        body.dark-mode .navbar {
+            background-color: #1a1a1a !important;
+            border-color: #333 !important;
+        }
+
+        body.dark-mode .navbar-light .navbar-brand,
+        body.dark-mode .navbar-light .navbar-nav .nav-link {
+            color: #e0e0e0 !important;
+        }
+
+        body.dark-mode .navbar-light .navbar-toggler {
+            border-color: rgba(255,255,255,.1);
+        }
+
+        /* 다크모드에서의 카드와 리스트 */
+        body.dark-mode .card,
+        body.dark-mode .list-group-item {
+            background-color: #1a1a1a;
+            border-color: #333;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .card-header {
+            background-color: #2d2d2d;
+            border-color: #333;
+            color: #e0e0e0;
+        }
+
+        /* 다크모드에서의 링크 */
+        body.dark-mode a {
+            color: #90caf9;
+        }
+
+        body.dark-mode a:hover {
+            color: #42a5f5;
+        }
+
+        /* 다크모드에서의 텍스트 */
+        body.dark-mode .text-muted {
+            color: #9e9e9e !important;
+        }
+
+        body.dark-mode .text-secondary {
+            color: #bdbdbd !important;
+        }
+
+        /* 다크모드에서의 버튼 */
+        body.dark-mode .btn-light {
+            background-color: #2d2d2d;
+            border-color: #333;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .btn-outline-secondary {
+            color: #e0e0e0;
+            border-color: #666;
+        }
+
+        body.dark-mode .btn-outline-secondary:hover {
+            background-color: #666;
+            color: #ffffff;
+        }
+
+        /* 다크모드에서의 입력 필드 */
+        body.dark-mode input,
+        body.dark-mode textarea {
+            background-color: #2d2d2d !important;
+            border-color: #444 !important;
+            color: #e0e0e0 !important;
+        }
+
+        body.dark-mode input:focus,
+        body.dark-mode textarea:focus {
+            background-color: #333 !important;
+            border-color: #666 !important;
+            color: #ffffff !important;
+        }
+
+        /* 다크모드에서의 테이블 */
+        body.dark-mode .table {
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .table thead th {
+            background-color: #2d2d2d;
+            border-color: #444;
+        }
+
+        body.dark-mode .table td,
+        body.dark-mode .table th {
+            border-color: #444;
+        }
+
+        /* 다크모드에서의 알림 */
+        body.dark-mode .alert {
+            background-color: #2d2d2d;
+            border-color: #444;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .alert-info {
+            background-color: #1a237e;
+            border-color: #283593;
+        }
+
+        body.dark-mode .alert-danger {
+            background-color: #b71c1c;
+            border-color: #c62828;
+        }
+
+        /* 다크모드 토글 버튼 */
+        .dark-mode-toggle {
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            transition: all 0.3s ease;
+            background: none;
+            border: none;
+        }
+
+        body.dark-mode .dark-mode-toggle {
+            color: #e0e0e0;
+        }
+
+        /* 다크모드에서의 배지 */
+        body.dark-mode .badge {
+            color: #ffffff;
+        }
+
+        body.dark-mode .badge-primary {
+            background-color: #1976d2;
+        }
+
+        body.dark-mode .badge-secondary {
+            background-color: #424242;
+        }
+
+        /* 다크모드에서의 페이지네이션 */
+        body.dark-mode .pagination .page-link {
+            background-color: #2d2d2d;
+            border-color: #444;
+            color: #e0e0e0;
+        }
+
+        body.dark-mode .pagination .page-item.active .page-link {
+            background-color: #1976d2;
+            border-color: #1976d2;
+        }
+    </style>
 </head>
 <body>
 {% include "navbar.html" %}

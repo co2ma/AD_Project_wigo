@@ -1,6 +1,6 @@
 from django.urls import path
-
-from .views import base_views, question_views, answer_views, comment_views, vote_views
+from . import views
+from .views import base_views, question_views, answer_views, comment_views, vote_views, bookmark_views, preference_views
 
 app_name = 'pybo'
 
@@ -30,4 +30,12 @@ urlpatterns = [
     # vote_views.py
     path('vote/question/<int:question_id>/', vote_views.vote_question, name='vote_question'),
     path('vote/answer/<int:answer_id>/', vote_views.vote_answer, name='vote_answer'),
+
+    # bookmark_views.py
+    path('bookmark/<int:question_id>/', bookmark_views.toggle_bookmark, name='toggle_bookmark'),
+    path('bookmarks/', bookmark_views.bookmark_list, name='bookmark_list'),
+
+    # preference_views.py
+    path('preference/dark-mode/',
+         preference_views.toggle_dark_mode, name='toggle_dark_mode'),
 ]

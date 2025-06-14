@@ -30,3 +30,25 @@ class Comment(models.Model):
     modify_date = models.DateTimeField(null=True, blank=True)
     question = models.ForeignKey(Question, null=True, blank=True, on_delete=models.CASCADE)
     answer = models.ForeignKey(Answer, null=True, blank=True, on_delete=models.CASCADE)
+
+
+class Bookmark(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='bookmarks')
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='bookmarks')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'question')
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.username}의 북마크: {self.question.subject}"
+
+
+class UserPreference(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='preference')
+    dark_mode = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.username}의 설정"
