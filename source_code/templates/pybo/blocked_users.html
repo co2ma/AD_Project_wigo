@@ -5,7 +5,7 @@
     {% if blocked_users %}
     <div class="list-group">
         {% for block in blocked_users %}
-        <div class="list-group-item">
+        <div class="list-group-item bg-transparent border-secondary">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
                     <h5 class="mb-1">{{ block.blocked_user.username }}</h5>
@@ -13,7 +13,7 @@
                 </div>
                 <button class="btn btn-sm btn-outline-danger unblock-btn" 
                         data-user-id="{{ block.blocked_user.id }}">
-                    차단 해제
+                    <i class="fas fa-ban"></i> 차단 해제
                 </button>
             </div>
         </div>

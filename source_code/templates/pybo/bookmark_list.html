@@ -1,38 +1,34 @@
 {% extends 'base.html' %}
 {% block content %}
 <div class="container my-3">
-    <h2 class="border-bottom py-2">내 북마크 목록</h2>
+    <h2 class="border-bottom py-2">북마크 목록</h2>
     {% if bookmarks %}
     <div class="list-group">
         {% for bookmark in bookmarks %}
-        <div class="list-group-item">
-            <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-1">
-                    <a href="{% url 'pybo:detail' bookmark.question.id %}" class="text-decoration-none">
-                        {{ bookmark.question.subject }}
-                    </a>
-                </h5>
-                <small class="text-muted">{{ bookmark.created_at|date:"Y-m-d H:i" }}</small>
-            </div>
-            <p class="mb-1">{{ bookmark.question.content|truncatechars:200 }}</p>
+        <div class="list-group-item bg-transparent border-secondary">
             <div class="d-flex justify-content-between align-items-center">
                 <div>
-                    <span class="badge bg-primary">{{ bookmark.question.author.username }}</span>
-                    <span class="badge bg-secondary">{{ bookmark.question.create_date|date:"Y-m-d H:i" }}</span>
+                    <h5 class="mb-1">
+                        <a href="{% url 'pybo:detail' bookmark.question.id %}" class="text-decoration-none">
+                            {{ bookmark.question.subject }}
+                        </a>
+                    </h5>
+                    <small class="text-muted">
+                        {{ bookmark.question.author.username }} | 
+                        {{ bookmark.question.create_date|date:"Y-m-d H:i" }}
+                    </small>
                 </div>
-                <div>
-                    <button class="btn btn-sm btn-outline-danger toggle-bookmark" 
-                            data-question-id="{{ bookmark.question.id }}">
-                        북마크 해제
-                    </button>
-                </div>
+                <button class="btn btn-sm btn-outline-danger bookmark-btn" 
+                        data-question-id="{{ bookmark.question.id }}">
+                    <i class="fas fa-bookmark"></i> 북마크 해제
+                </button>
             </div>
         </div>
         {% endfor %}
     </div>
     {% else %}
     <div class="alert alert-info">
-        북마크한 게시글이 없습니다.
+        북마크한 게시물이 없습니다.
     </div>
     {% endif %}
 </div>
@@ -41,20 +37,28 @@
 {% block script %}
 <script type='text/javascript'>
 $(document).ready(function(){
-    $(".toggle-bookmark").on('click', function() {
+    $('.bookmark-btn').click(function(){
         var questionId = $(this).data('question-id');
-        $.ajax({
-            url: "{% url 'pybo:toggle_bookmark' 0 %}".replace('0', questionId),
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            success: function(response) {
-                if (response.status === 'success') {
-                    location.reload();
+        if(confirm('북마크를 해제하시겠습니까?')) {
+            $.ajax({
+                url: '/pybo/bookmark/' + questionId + '/',
+                type: 'POST',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response){
+                    if(response.status === 'success'){
+                        alert(response.message);
+                        location.reload();
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function(xhr, errmsg, err){
+                    alert('오류가 발생했습니다.');
                 }
-            }
-        });
+            });
+        }
     });
 });
 </script>
