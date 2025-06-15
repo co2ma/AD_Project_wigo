@@ -1,7 +1,7 @@
 {% load static %}
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
-        <a class="navbar-brand" href="{% url 'pybo:index' %}">Pybo</a>
+        <a class="navbar-brand" href="{% url 'pybo:index' %}">Pybo Board</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -24,6 +24,11 @@
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'pybo:bookmark_list' %}">
                         <i class="fas fa-bookmark"></i> 북마크
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'pybo:blocked_users' %}">
+                        <i class="fas fa-ban"></i> 차단 관리
                     </a>
                 </li>
                 <li class="nav-item">

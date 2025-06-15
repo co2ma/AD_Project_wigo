@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import base_views, question_views, answer_views, comment_views, vote_views, bookmark_views, preference_views
+from .views import base_views, question_views, answer_views, comment_views, vote_views, bookmark_views, preference_views, block_views
 
 app_name = 'pybo'
 
@@ -39,4 +39,8 @@ urlpatterns = [
     # preference_views.py
     path('preference/dark-mode/',
          preference_views.toggle_dark_mode, name='toggle_dark_mode'),
+         
+    # block_views.py
+    path('block/<int:user_id>/', block_views.toggle_block, name='toggle_block'),
+    path('blocked-users/', block_views.blocked_users, name='blocked_users'),
 ]

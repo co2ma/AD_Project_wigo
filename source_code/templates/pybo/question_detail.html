@@ -11,7 +11,24 @@
     {% endfor %}
     </div>
     {% endif %}
-    <h2 class="border-bottom py-2">{{ question.subject }}</h2>
+    <div class="card my-3">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="card-title">{{ question.subject }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">
+                        {{ question.author.username }}
+                        {% if user.is_authenticated and user != question.author %}
+                        <button class="btn btn-sm btn-outline-danger block-btn" 
+                                data-user-id="{{ question.author.id }}">
+                            <i class="fas fa-ban"></i> 차단
+                        </button>
+                        {% endif %}
+                    </h6>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="row my-3">
         <div class="col-1"> <!-- 추천영역 -->
             <div class="bg-light text-center p-3 border font-weight-bolder mb-1">{{question.voter.count}}</div>
@@ -50,20 +67,23 @@
                     {% if question.comment_set.count > 0 %}
                     <div class="mt-3">
                     {% for comment in question.comment_set.all %}
-                        <div class="comment py-2 text-muted">
-                            <span style="white-space: pre-line;">{{ comment.content }}</span>
-                            <span>
-                                - {{ comment.author }}, {{ comment.create_date }}
-                                {% if comment.modify_date %}
-                                (수정:{{ comment.modify_date }})
-                                {% endif %}
-                            </span>
-                            {% if request.user == comment.author %}
-                            <a href="{% url 'pybo:comment_modify_question' comment.id  %}" class="small">수정</a>,
-                            <a href="#" class="small delete"
-                               data-uri="{% url 'pybo:comment_delete_question' comment.id  %}">삭제</a>
+                    {% if comment.author not in blocked_users %}
+                    <div class="comment py-2 text-muted">
+                        <span style="white-space: pre-line;">{{ comment.content }}</span>
+                        <span>
+                            - {{ comment.author }}, {{ comment.create_date }}
+                            {% if comment.modify_date %}
+                            (수정:{{ comment.modify_date }})
                             {% endif %}
-                        </div>
+                        </span>
+                        {% if request.user == comment.author %}
+                        <a href="{% url 'pybo:comment_modify_question' comment.id  %}" 
+                           class="small">수정</a>,
+                        <a href="#" class="small delete" 
+                           data-uri="{% url 'pybo:comment_delete_question' comment.id  %}">삭제</a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
                     {% endfor %}
                     </div>
                     {% endif %}
@@ -184,6 +204,29 @@ $(document).ready(function(){
                 }
             }
         });
+    });
+    $('.block-btn').click(function(){
+        var userId = $(this).data('user-id');
+        if(confirm('이 사용자를 차단하시겠습니까?')) {
+            $.ajax({
+                url: '/pybo/block/' + userId + '/',
+                type: 'POST',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response){
+                    if(response.status === 'success'){
+                        alert(response.message);
+                        location.reload();
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function(xhr, errmsg, err){
+                    alert('오류가 발생했습니다.');
+                }
+            });
+        }
     });
 });
 </script>

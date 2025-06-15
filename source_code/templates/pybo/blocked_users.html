@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-3">
+    <h2 class="border-bottom py-2">차단된 사용자 목록</h2>
+    {% if blocked_users %}
+    <div class="list-group">
+        {% for block in blocked_users %}
+        <div class="list-group-item">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-1">{{ block.blocked_user.username }}</h5>
+                    <small class="text-muted">차단일: {{ block.created_at|date:"Y-m-d H:i" }}</small>
+                </div>
+                <button class="btn btn-sm btn-outline-danger unblock-btn" 
+                        data-user-id="{{ block.blocked_user.id }}">
+                    차단 해제
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        차단한 사용자가 없습니다.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block script %}
+<script type='text/javascript'>
+$(document).ready(function(){
+    $('.unblock-btn').click(function(){
+        var userId = $(this).data('user-id');
+        if(confirm('정말로 차단을 해제하시겠습니까?')) {
+            $.ajax({
+                url: '/pybo/block/' + userId + '/',
+                type: 'POST',
+                data: {
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'
+                },
+                success: function(response){
+                    if(response.status === 'success'){
+                        alert(response.message);
+                        location.reload();
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function(xhr, errmsg, err){
+                    alert('오류가 발생했습니다.');
+                }
+            });
+        }
+    });
+});
+</script>
+{% endblock %} 
