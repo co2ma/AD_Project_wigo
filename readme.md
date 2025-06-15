@@ -5,9 +5,11 @@
   <img src="https://img.shields.io/badge/Python-3.11+-blue" alt="Python">
 
 
-# AD 프로젝트 (웹 서버 컴퓨팅 과제)
+# Pybo 기반 자유 게시판 제작 (웹 서버 컴퓨팅 AD 프로젝트)
 
 > Django 기반 커뮤니티 웹 애플리케이션으로, "점프 투 장고(Jump to Django)" pybo(3–12장)을 확장하여 개발되었습니다.
+
+![image](https://github.com/user-attachments/assets/fadae06e-bc41-4714-8cb0-849c9121fe23)
 
 ---
 
