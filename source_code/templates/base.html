@@ -1,29 +1,272 @@
 {% load static %}
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" type="text/css" href="{% static 'bootstrap.min.css' %}">
-    <!-- pybo CSS -->
-    <link rel="stylesheet" type="text/css" href="{% static 'style.css' %}">
-    <title>Hello, pybo!</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Pybo{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.8.2/css/all.min.css"/>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static 'bootstrap.min.js' %}"></script>
+    {% block extra_css %}{% endblock %}
+    <style>
+        /* 기본 라이트 모드 */
+        :root {
+            --bg-color: #ffffff;
+            --text-color: #212529;
+            --card-bg: #ffffff;
+            --border-color: #dee2e6;
+            --navbar-bg: #343a40;
+            --navbar-text: #ffffff;
+            --link-color: #007bff;
+            --link-hover: #0056b3;
+            --text-muted: #6c757d;
+            --text-secondary: #6c757d;
+            --input-bg: #ffffff;
+            --input-border: #ced4da;
+            --input-text: #212529;
+            --table-border: #dee2e6;
+            --table-header-bg: #f8f9fa;
+            --alert-bg: #f8f9fa;
+            --alert-border: #f8f9fa;
+            --badge-bg: #6c757d;
+            --badge-text: #ffffff;
+            --pagination-bg: #ffffff;
+            --pagination-border: #dee2e6;
+            --pagination-text: #007bff;
+            --pagination-hover: #e9ecef;
+        }
+
+        /* 다크 모드 */
+        [data-theme="dark"] {
+            --bg-color: #212529;
+            --text-color: #f8f9fa;
+            --card-bg: #343a40;
+            --border-color: #495057;
+            --navbar-bg: #212529;
+            --navbar-text: #f8f9fa;
+            --link-color: #6ea8fe;
+            --link-hover: #8bb9fe;
+            --text-muted: #adb5bd;
+            --text-secondary: #adb5bd;
+            --input-bg: #343a40;
+            --input-border: #495057;
+            --input-text: #f8f9fa;
+            --table-border: #495057;
+            --table-header-bg: #343a40;
+            --alert-bg: #343a40;
+            --alert-border: #495057;
+            --badge-bg: #495057;
+            --badge-text: #f8f9fa;
+            --pagination-bg: #343a40;
+            --pagination-border: #495057;
+            --pagination-text: #6ea8fe;
+            --pagination-hover: #495057;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        .navbar {
+            background-color: var(--navbar-bg) !important;
+        }
+
+        .navbar-dark .navbar-nav .nav-link {
+            color: var(--navbar-text);
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-color: var(--border-color);
+        }
+
+        .card-header {
+            background-color: var(--card-bg);
+            border-bottom-color: var(--border-color);
+        }
+
+        .card-footer {
+            background-color: var(--card-bg);
+            border-top-color: var(--border-color);
+        }
+
+        a {
+            color: var(--link-color);
+        }
+
+        a:hover {
+            color: var(--link-hover);
+        }
+
+        .text-muted {
+            color: var(--text-muted) !important;
+        }
+
+        .text-secondary {
+            color: var(--text-secondary) !important;
+        }
+
+        input, textarea, select {
+            background-color: var(--input-bg) !important;
+            border-color: var(--input-border) !important;
+            color: var(--input-text) !important;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            background-color: var(--input-bg) !important;
+            border-color: var(--link-color) !important;
+            color: var(--input-text) !important;
+        }
+
+        .table {
+            color: var(--text-color);
+            border-color: var(--table-border);
+        }
+
+        .table thead th {
+            background-color: var(--table-header-bg);
+            border-color: var(--table-border);
+        }
+
+        .table td, .table th {
+            border-color: var(--table-border);
+        }
+
+        .alert {
+            background-color: var(--alert-bg);
+            border-color: var(--alert-border);
+            color: var(--text-color);
+        }
+
+        .badge {
+            background-color: var(--badge-bg);
+            color: var(--badge-text);
+        }
+
+        .pagination .page-link {
+            background-color: var(--pagination-bg);
+            border-color: var(--pagination-border);
+            color: var(--pagination-text);
+        }
+
+        .pagination .page-link:hover {
+            background-color: var(--pagination-hover);
+            border-color: var(--pagination-border);
+        }
+
+        .dark-mode-toggle {
+            background: none;
+            border: none;
+            color: var(--navbar-text);
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .dark-mode-toggle:hover {
+            color: var(--link-color);
+        }
+
+        .dropdown-menu {
+            background-color: var(--card-bg);
+            border-color: var(--border-color);
+        }
+
+        .dropdown-item {
+            color: var(--text-color);
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--border-color);
+            color: var(--text-color);
+        }
+
+        .dropdown-divider {
+            border-top-color: var(--border-color);
+        }
+
+        .btn-light {
+            background-color: var(--card-bg);
+            border-color: var(--border-color);
+            color: var(--text-color);
+        }
+
+        .btn-outline-secondary {
+            color: var(--text-color);
+            border-color: var(--border-color);
+        }
+
+        .btn-outline-secondary:hover {
+            background-color: var(--border-color);
+            color: var(--text-color);
+        }
+    </style>
 </head>
 <body>
-{% include "navbar.html" %}
-<!-- 기본 템플릿 안에 삽입될 내용 Start -->
-{% block content %}
-{% endblock %}
-<!-- 기본 템플릿 안에 삽입될 내용 End -->
-<!-- jQuery JS -->
-<script src="{% static 'jquery-3.4.1.min.js' %}"></script>
-<!-- Bootstrap JS -->
-<script src="{% static 'bootstrap.min.js' %}"></script>
-<!-- 자바스크립트 Start -->
-{% block script %}
-{% endblock %}
-<!-- 자바스크립트 End -->
+    {% csrf_token %}
+    {% include 'navbar.html' %}
+    <div class="container mt-3">
+        {% block content %}
+        {% endblock %}
+    </div>
+    <script>
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrftoken = getCookie('csrftoken');
+        $.ajaxSetup({
+            headers: {
+                'X-CSRFToken': csrftoken
+            }
+        });
+    </script>
+    {% block script %}
+    {% endblock %}
+    <script>
+        // 다크모드 토글 기능
+        document.addEventListener('DOMContentLoaded', function() {
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            const body = document.body;
+            const icon = darkModeToggle.querySelector('i');
+            
+            // 저장된 테마 불러오기
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                body.setAttribute('data-theme', 'dark');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            }
+            
+            darkModeToggle.addEventListener('click', function() {
+                if (body.getAttribute('data-theme') === 'dark') {
+                    body.removeAttribute('data-theme');
+                    localStorage.setItem('theme', 'light');
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                } else {
+                    body.setAttribute('data-theme', 'dark');
+                    localStorage.setItem('theme', 'dark');
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                }
+            });
+        });
+    </script>
 </body>
 </html>
