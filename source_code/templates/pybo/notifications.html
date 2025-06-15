@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container my-3">
+    <h2 class="border-bottom py-2">알림 목록</h2>
+    {% if notifications %}
+    <div class="list-group">
+        {% for notification in notifications %}
+        <div class="list-group-item {% if not notification.is_read %}list-group-item-primary{% endif %}">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <p class="mb-1">
+                        <strong>{{ notification.comment.author.username }}</strong>님이 
+                        <a href="{% url 'pybo:question_detail' notification.post.id %}#comment-{{ notification.comment.id }}">
+                            {{ notification.post.subject }}
+                        </a>에 댓글을 남겼습니다.
+                    </p>
+                    <small class="text-muted">{{ notification.created_at|date:"Y-m-d H:i" }}</small>
+                </div>
+                {% if not notification.is_read %}
+                <button class="btn btn-sm btn-outline-primary mark-read" 
+                        data-notification-id="{{ notification.id }}">읽음</button>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        새로운 알림이 없습니다.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block script %}
+<script type='text/javascript'>
+$(document).ready(function(){
+    $(".mark-read").on('click', function() {
+        var notificationId = $(this).data('notification-id');
+        $.ajax({
+            url: "{% url 'pybo:mark_notification_read' 0 %}".replace('0', notificationId),
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    location.reload();
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock %} 
