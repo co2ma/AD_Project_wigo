@@ -33,7 +33,7 @@ urlpatterns = [
     path('vote/answer/<int:answer_id>/', vote_views.vote_answer, name='vote_answer'),
 
     # bookmark_views.py
-    path('bookmark/<int:question_id>/', bookmark_views.toggle_bookmark, name='toggle_bookmark'),
+    path('bookmark/<int:question_id>/', bookmark_views.bookmark_toggle, name='toggle_bookmark'),
     path('bookmarks/', bookmark_views.bookmark_list, name='bookmark_list'),
 
     # preference_views.py
